@@ -18,6 +18,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chatty_pal/screens/profile_screen.dart';
 
 void main() async {
+  //test
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final name = await CacheManager.getValue(userNameCacheKey);
