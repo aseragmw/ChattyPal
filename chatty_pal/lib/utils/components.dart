@@ -22,9 +22,9 @@ Widget customTextField(
           suffixIconColor: Colors.black45,
           border: InputBorder.none,
           enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: enabledBorderColor, width: 3)),
+              borderSide: BorderSide(color: enabledBorderColor, width: 2)),
           focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(width: 3, color: focusedBorderColor)),
+              borderSide: BorderSide(width: 2, color: focusedBorderColor)),
           label: Text(label),
           labelStyle: TextStyle(
               fontSize: screenWidth / 23,

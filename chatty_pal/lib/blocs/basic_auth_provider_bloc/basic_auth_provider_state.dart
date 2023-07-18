@@ -61,4 +61,22 @@ class ChangeUserPasswordErrorState extends BasicAuthProviderState {
   ChangeUserPasswordErrorState(this.errorMessage);
 }
 
+class ChangeUserBioLodaingState extends BasicAuthProviderState {}
+
+class ChangeUserBioSuccessState extends BasicAuthProviderState {}
+
+class ChangeUserBioErrorState extends BasicAuthProviderState {
+  final String errorMessage;
+  ChangeUserBioErrorState(this.errorMessage);
+}
+
+
+class SaveUserExtraDataLodaingState extends BasicAuthProviderState {}
+
+class SaveUserExtraDataSuccessState extends BasicAuthProviderState {}
+
+class SaveUserExtraDataErrorState extends BasicAuthProviderState {
+  final String errorMessage;
+  SaveUserExtraDataErrorState(this.errorMessage);
+}
 

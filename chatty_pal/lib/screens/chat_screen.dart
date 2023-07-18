@@ -1,3 +1,4 @@
+import 'dart:developer';
 
 import 'package:chatty_pal/blocs/chats_bloc/chats_bloc.dart';
 import 'package:chatty_pal/models/user.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,11 +29,9 @@ class _ChatScreenState extends State<ChatScreen> {
   bool hasMessgaes = false;
   @override
   void deactivate() async {
-   
     context.read<ChatsBloc>().add(GetAllChatsEvent());
     super.deactivate();
   }
-  
 
   @override
   void initState() {
@@ -39,12 +39,16 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
   }
 
+  bool gotRecHasPic = false;
+  String recPic = '';
+
   ScrollController _controller = new ScrollController();
   @override
   Widget build(BuildContext context) {
+    //  context.read<ChatsBloc>().add(GetChatStreamEvent(widget.reciverUser));
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-
+    log(widget.reciverUser.userProfileImage);
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -74,13 +78,17 @@ class _ChatScreenState extends State<ChatScreen> {
                             color: Colors.white,
                           )),
                       CircleAvatar(
-                        backgroundColor: Colors.white,
+                        backgroundColor: Colors.transparent,
                         radius: 25,
                         child: ClipOval(
-                            child: Icon(
-                          Icons.person_3_rounded,
-                          color: Colors.black45,
-                          size: screenHeight / screenWidth * 20,
+                            child: CachedNetworkImage(
+                          // width: 10,
+                          // height: 10,
+                          imageUrl: widget.reciverUser.userProfileImage,
+                          placeholder: (context, url) =>
+                              CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
                         )),
                       ),
                       SizedBox(
@@ -96,10 +104,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                 fontWeight: FontWeight.bold,
                                 fontSize: screenHeight / screenWidth * 14),
                           ),
-                          Text(
-                            'Last seen 11:00',
-                            style: TextStyle(color: Colors.white),
-                          ),
+                          // Text(
+                          //   'Last seen 11:00',
+                          //   style: TextStyle(color: Colors.white),
+                          // ),
                         ],
                       ),
                       Spacer(),
@@ -115,68 +123,75 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
               Expanded(
-                child: BlocBuilder<ChatsBloc, ChatsState>(
-                    builder: (context, state) {
-                  if (state is GettingChatStreamSuccessState) {
-                    return StreamBuilder(
-                        stream: state.chatStream,
-                        builder: ((context, snapshot) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (_controller.hasClients) {
-                              _controller
-                                  .jumpTo(_controller.position.maxScrollExtent);
+                child: BlocConsumer<ChatsBloc, ChatsState>(
+                  listener: (context, state) {
+                    if (state is GettingAllChatsSuccessState) {
+                      // context
+                      //     .read<ChatsBloc>()
+                      //     .add(GetChatStreamEvent(widget.reciverUser));
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is GettingChatStreamSuccessState) {
+                      return StreamBuilder(
+                          stream: state.chatStream,
+                          builder: ((context, snapshot) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (_controller.hasClients) {
+                                _controller.jumpTo(
+                                    _controller.position.maxScrollExtent);
+                              } else {
+                                setState(() => null);
+                              }
+                            });
+
+                            if (snapshot.hasData) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: screenWidth / 50),
+                                child: ListView.builder(
+                                    controller: _controller,
+                                    scrollDirection: Axis.vertical,
+                                    itemBuilder: (context, index) {
+                                      hasMessgaes = true;
+                                      if (snapshot.data!.docs[index]
+                                              ['fromId'] ==
+                                          AppConstants.userId) {
+                                        return sentMessage(
+                                            screenWidth,
+                                            screenHeight,
+                                            snapshot.data!.docs[index]
+                                                ['content']);
+                                      } else {
+                                        return recievedMessage(
+                                            screenWidth,
+                                            screenHeight,
+                                            snapshot.data!.docs[index]
+                                                ['content']);
+                                      }
+                                    },
+                                    itemCount: snapshot.data!.docs.length),
+                              );
                             } else {
-                              setState(() => null);
+                              return Text('');
                             }
-                          });
-                          // if (_controller.hasClients) {
-                          //   _controller
-                          //       .jumpTo(_controller.position.maxScrollExtent);
-                          // }
-                          if (snapshot.hasData) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: screenWidth / 50),
-                              child: ListView.builder(
-                                  controller: _controller,
-                                  scrollDirection: Axis.vertical,
-                                  itemBuilder: (context, index) {
-                                    hasMessgaes = true;
-                                    if (snapshot.data!.docs[index]['fromId'] ==
-                                        AppConstants.userId) {
-                                      return sentMessage(
-                                          screenWidth,
-                                          screenHeight,
-                                          snapshot.data!.docs[index]
-                                              ['content']);
-                                    } else {
-                                      return recievedMessage(
-                                          screenWidth,
-                                          screenHeight,
-                                          snapshot.data!.docs[index]
-                                              ['content']);
-                                    }
-                                  },
-                                  itemCount: snapshot.data!.docs.length),
-                            );
-                          } else {
-                            return Text('');
-                          }
-                        }));
-                  } else if (state is GettingChatStreamErrorState) {
-                    ToastManager.show(
-                        context, 'Something went wrong..', Colors.red);
-                    return SizedBox();
-                  } else {
-                    return Padding(
-                      padding: EdgeInsets.fromLTRB(0, screenHeight / 3, 0, 0),
-                      child: Center(
-                          child: CircularProgressIndicator(
-                        color: Color.fromRGBO(9, 77, 61, 1),
-                      )),
-                    );
-                  }
-                }),
+                          }));
+                    } else if (state is GettingChatStreamErrorState) {
+                      ToastManager.show(
+                          context, 'Something went wrong..', Colors.red);
+                      return SizedBox();
+                    } else {
+                      log('state is ${state.toString()}');
+                      return Padding(
+                        padding: EdgeInsets.fromLTRB(0, screenHeight / 3, 0, 0),
+                        child: Center(
+                            child: CircularProgressIndicator(
+                          color: Color.fromRGBO(9, 77, 61, 1),
+                        )),
+                      );
+                    }
+                  },
+                ),
               ),
               // SizedBox(
               //   height: screenHeight / 60,
@@ -205,13 +220,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       widget.reciverUser.userId,
                                       _messageController.text,
                                       DateTime.now());
-                                  // _controller.jumpTo(
-                                  //     _controller.position.maxScrollExtent +
-                                  //         200);
-                                  // _controller.animateTo(
-                                  //     _controller.position.maxScrollExtent,
-                                  //     duration: Duration(milliseconds: 500),
-                                  //     curve: Curves.ease);
+
                                   FocusScope.of(context).unfocus();
                                   _messageController.text = '';
                                 },

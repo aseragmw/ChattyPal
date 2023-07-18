@@ -15,6 +15,10 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (AppConstants.userProfileImgUrl == null) {
+      log('null');
+    }
+    // context.read<ChatsBloc>().add(GetAllChatsEvent());
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     return GestureDetector(
@@ -39,10 +43,10 @@ class HomeScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 30,
-                        child: ClipOval(child: SizedBox()),
+                      Image.asset(
+                        'assets/images/logo2.png',
+                        width: screenHeight / screenWidth * 35,
+                        height: screenHeight / screenWidth * 35,
                       ),
                       Container(
                         width: screenWidth * .60,
@@ -83,17 +87,30 @@ class HomeScreen extends StatelessWidget {
                       ),
                       InkWell(
                         onTap: () {
-                          Navigator.of(context).pushNamed('profileScreen');
+                          Navigator.of(context).pushNamed('settingsScreen');
                         },
                         child: CircleAvatar(
                           backgroundColor: Colors.white,
                           radius: 25,
                           child: ClipOval(
-                              child: Icon(
-                            Icons.person_3_rounded,
-                            color: Colors.black45,
-                            size: screenHeight / screenWidth * 20,
-                          )),
+                              child: AppConstants.userProfileImgUrl != null
+                                  ? FutureBuilder(
+                                      future: FirestoreDatabase
+                                          .getUserProfilePicture(
+                                              AppConstants.userProfileImgUrl!),
+                                      builder: (context, snapshot) {
+                                        switch (snapshot.connectionState) {
+                                          case ConnectionState.done:
+                                            return Image.network(snapshot.data!);
+                                          default:
+                                            return CircularProgressIndicator(
+                                              color: Color.fromRGBO(
+                                                  135, 182, 151, 1),
+                                            );
+                                        }
+                                      },
+                                    )
+                                  : Icon(Icons.person)),
                         ),
                       ),
                     ],
@@ -111,23 +128,18 @@ class HomeScreen extends StatelessWidget {
                                 shrinkWrap: true,
                                 itemCount: chatStreamSnapshot.data!.length,
                                 itemBuilder: ((context, index) {
-
                                   return FutureBuilder(
                                       future: FirestoreDatabase.getChat(
                                           AppConstants.userId!,
                                           chatStreamSnapshot
                                               .data![index].userId),
                                       builder: (context, snapshot2) {
-
                                         switch (snapshot2.connectionState) {
                                           default:
-
                                             return StreamBuilder(
                                                 stream: snapshot2.data,
                                                 builder: ((context, snapshot) {
-
                                                   if (snapshot.hasData) {
-
                                                     String messageTime = '';
                                                     if (snapshot.data!.docs
                                                         .isNotEmpty) {

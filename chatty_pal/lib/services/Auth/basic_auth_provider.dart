@@ -1,3 +1,4 @@
+import 'dart:developer';
 
 import 'package:chatty_pal/services/Auth/auth_exceptions.dart';
 import 'package:chatty_pal/utils/cache_manager.dart';
@@ -12,6 +13,7 @@ class BasicAuthProvider {
       final signInResult = await firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
       if (signInResult.user != null) {
+        //log(' this is ${signInResult.user!.photoURL.toString()}');
         CacheManager.setValue(userIsLoggedInCacheKey, true);
         CacheManager.setValue(userNameCacheKey, signInResult.user!.displayName);
         CacheManager.setValue(userIdCacheKey, signInResult.user!.uid);
@@ -25,6 +27,7 @@ class BasicAuthProvider {
         AppConstants.userEmail = signInResult.user!.email!;
         AppConstants.userPassword = password;
         AppConstants.userProfileImgUrl = signInResult.user!.photoURL;
+        log('akher login function');
       } else {
         throw OperationErrorAuthException();
       }

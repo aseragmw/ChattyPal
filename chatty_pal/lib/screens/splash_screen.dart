@@ -4,7 +4,6 @@ import 'package:chatty_pal/utils/app_constants.dart';
 import 'package:chatty_pal/utils/cache_manager.dart';
 import 'package:chatty_pal/utils/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -29,38 +28,11 @@ class SplashScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color.fromRGBO(9, 77, 61, 1),
       body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.message_outlined,
-            size: screenHeight / screenWidth * 130,
-            color: Colors.white30,
-          ),
-          Text(
-            'ChattyPal',
-            style: TextStyle(
-              fontSize: screenHeight / screenWidth * 18,
-              color: Colors.white38,
-              fontWeight: FontWeight.bold,
-            ),
-          )
-        ],
-      )),
+          child: Image.asset(
+                      'assets/images/logo2.png',
+                      width: screenHeight / screenWidth * 120,
+                      height: screenHeight / screenWidth * 120,
+                    )),
     );
   }
 }
-// SizedBox(
-//         child: TextLiquidFill(
-//           loadDuration: Duration(seconds: 2),
-//           loadUntil: 0.6,
-//           text: 'ChattyPal',
-//           waveColor: Colors.grey,
-//           boxBackgroundColor: Colors.black,
-//           textStyle: const TextStyle(
-//             fontSize: 80.0,
-//             fontWeight: FontWeight.bold,
-//           ),
-//           boxHeight: 300.0,
-//         ),
-//       )

@@ -1,9 +1,12 @@
 import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:chatty_pal/models/user.dart';
 import 'package:chatty_pal/services/Firestore/firestore_constants.dart';
 import 'package:chatty_pal/utils/app_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class FirestoreDatabase {
   static final _firestoreDatabase = FirebaseFirestore.instance;
@@ -50,7 +53,6 @@ class FirestoreDatabase {
           if (!found) {
             allUsers.add(user);
           }
-          
         }
       });
     } catch (e) {}
@@ -236,6 +238,47 @@ class FirestoreDatabase {
       log(userData.docs.first.data().toString());
       return User.fromJson(userData.docs.first.data());
     } catch (e) {
+      log(e.toString());
+      throw e;
+    }
+  }
+
+  static Future<String> getUserProfilePicture(String photoPath) async {
+    try {
+      final userData = await _firestoreDatabase
+          .collection(usersCollectionPath)
+          .where('id', isEqualTo: AppConstants.userId)
+          .get();
+      final user = User.fromJson(userData.docs.first.data());
+      log('my url is ${photoPath}');
+      final imgUrl =
+          await FirebaseStorage.instance.refFromURL(photoPath).getDownloadURL();
+      return imgUrl;
+    } catch (e) {
+      log(e.hashCode.toString());
+      log(e.toString());
+      log(e.hashCode.toString());
+      throw e;
+    }
+  }
+
+  static Future<String> getAnotherUserProfilePicture(String uid) async {
+    try {
+      final userData = await _firestoreDatabase
+          .collection(usersCollectionPath)
+          .where('id', isEqualTo: uid)
+          .get();
+      final user = User.fromJson(userData.docs.first.data());
+      log('another url is ${user.userProfileImage}');
+      final imgUrl = await FirebaseStorage.instance
+          .refFromURL(user.userProfileImage)
+          .getDownloadURL();
+      log('ba3do');
+      return imgUrl;
+    } catch (e) {
+      log(e.hashCode.toString());
+      log(e.toString());
+      log(e.hashCode.toString());
       throw e;
     }
   }

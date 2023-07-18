@@ -1,4 +1,3 @@
-
 import 'package:bloc/bloc.dart';
 import 'package:chatty_pal/models/user.dart';
 import 'package:chatty_pal/services/Firestore/firestore_database.dart';
@@ -26,7 +25,7 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
         emit(GettingChatStreamErrorState());
       }
     });
-    
+
     on<GetAllChatsEvent>((event, emit) async {
       emit(GettingAllChatsLoadingState());
       try {
@@ -47,7 +46,7 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
         for (var element in FirestoreDatabase.allUsers) {
           if (element.userName.toLowerCase().contains(event.userName) &&
               !result.contains(element)) {
-            result.add(element);
+            if (element.userId != AppConstants.userId) result.add(element);
           }
         }
 

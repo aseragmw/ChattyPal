@@ -4,9 +4,11 @@ import 'package:chatty_pal/blocs/chats_bloc/chats_bloc.dart';
 import 'package:chatty_pal/firebase_options.dart';
 import 'package:chatty_pal/screens/change_password_screen.dart';
 import 'package:chatty_pal/screens/chat_screen.dart';
+import 'package:chatty_pal/screens/extra_details_screen.dart';
 import 'package:chatty_pal/screens/home_screen.dart';
 import 'package:chatty_pal/screens/login_screen.dart';
 import 'package:chatty_pal/screens/register_screen.dart';
+import 'package:chatty_pal/screens/settings_screen.dart';
 import 'package:chatty_pal/screens/splash_screen.dart';
 import 'package:chatty_pal/services/Firestore/firestore_database.dart';
 import 'package:chatty_pal/utils/app_constants.dart';
@@ -15,7 +17,7 @@ import 'package:chatty_pal/utils/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:chatty_pal/screens/profile_screen.dart';
+import 'package:chatty_pal/screens/account_screen.dart';
 
 void main() async {
   //test
@@ -49,7 +51,7 @@ class ChattyPal extends StatelessWidget {
         BlocProvider(
           create: (context) => BasicAuthProviderBloc(),
         ),
-         BlocProvider(
+        BlocProvider(
           create: (context) => ChatsBloc(),
         ),
       ],
@@ -60,9 +62,12 @@ class ChattyPal extends StatelessWidget {
           "loginScreen": (context) => LoginScreen(),
           "registerScreen": (context) => RegisterScreen(),
           "homeScreen": (context) => HomeScreen(),
-          "profileScreen": (context) => ProfileScreen(),
+          "profileScreen": (context) => AccountScreen(),
           "changePassowordScreen": (context) => ChangePasswordScreen(),
-         // "searchScreen": (context) => SearchScreen(),
+          // "searchScreen": (context) => SearchScreen(),
+          "settingsScreen": (context) => SettingsScreen(),
+          "accountScreen": (context) => AccountScreen(),
+          "extraDetailsScreen":(context) => ExtraDetailsScreen()
         },
         home: SplashScreen(),
       ),

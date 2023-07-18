@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:chatty_pal/blocs/basic_auth_provider_bloc/basic_auth_provider_bloc.dart';
 import 'package:chatty_pal/utils/app_constants.dart';
 import 'package:chatty_pal/utils/cache_manager.dart';
@@ -31,6 +33,14 @@ class ChangePasswordScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Image.asset(
+                      'assets/images/logo.png',
+                      width: screenHeight / screenWidth * 120,
+                      height: screenHeight / screenWidth * 120,
+                    ),
+                    SizedBox(
+                      height: screenHeight * 0.02,
+                    ),
                     customTextField(
                         (String) {},
                         TextInputType.visiblePassword,
@@ -39,8 +49,8 @@ class ChangePasswordScreen extends StatelessWidget {
                         'Current password',
                         Icon(Icons.password_sharp),
                         screenWidth,
-                        Colors.black,
-                        Colors.black45),
+                        Color.fromRGBO(9, 77, 61, 1),
+                        Color.fromRGBO(135, 182, 151, 1)),
                     SizedBox(
                       height: screenHeight / 50,
                     ),
@@ -52,8 +62,8 @@ class ChangePasswordScreen extends StatelessWidget {
                         'New password',
                         Icon(Icons.password_sharp),
                         screenWidth,
-                        Colors.black,
-                        Colors.black45),
+                        Color.fromRGBO(9, 77, 61, 1),
+                        Color.fromRGBO(135, 182, 151, 1)),
                     SizedBox(
                       height: screenHeight / 50,
                     ),
@@ -65,8 +75,8 @@ class ChangePasswordScreen extends StatelessWidget {
                         'Confirm new password',
                         Icon(Icons.password_sharp),
                         screenWidth,
-                        Colors.black,
-                        Colors.black45),
+                        Color.fromRGBO(9, 77, 61, 1),
+                        Color.fromRGBO(135, 182, 151, 1)),
                     SizedBox(
                       height: screenHeight / 50,
                     ),
@@ -79,7 +89,8 @@ class ChangePasswordScreen extends StatelessWidget {
                           ),
                         );
                       } else {
-                        return customButton(Colors.black, Colors.white, 'Save',
+                        return customButton(
+                            Color.fromRGBO(9, 77, 61, 1), Colors.white, 'Save',
                             () {
                           if (_currentPasswordController.text ==
                                   AppConstants.userPassword &&
@@ -92,14 +103,14 @@ class ChangePasswordScreen extends StatelessWidget {
                           } else if (_currentPasswordController.text !=
                               AppConstants.userPassword) {
                             ToastManager.show(context, 'Wrong Current Password',
-                                Colors.redAccent);
+                                Color.fromARGB(255, 174, 48, 48));
                           } else if (_newPasswordController.text ==
                               _newPasswordConfirmationController.text) {
                             context.read<BasicAuthProviderBloc>().add(
                                 ChangeUserPasswordEvent(
                                     _newPasswordController.text));
                           }
-                        }, screenWidth, screenHeight);
+                        }, screenWidth / 3, screenHeight);
                       }
                     }), listener: ((context, state) async {
                       if (state is ChangeUserPasswordSuccessState) {
@@ -112,6 +123,13 @@ class ChangePasswordScreen extends StatelessWidget {
                       } else if (state is ChangeUserPasswordErrorState) {
                         ToastManager.show(
                             context, state.errorMessage, Colors.redAccent);
+                        if (state.errorMessage == 'Requires relogin') {
+                          context
+                              .read<BasicAuthProviderBloc>()
+                              .add(LogoutEvent());
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                              'loginScreen', (Route<dynamic> route) => false);
+                        }
                       }
                     }))
                   ],

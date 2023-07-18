@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:chatty_pal/blocs/basic_auth_provider_bloc/basic_auth_provider_bloc.dart';
 import 'package:chatty_pal/utils/toast_manager.dart';
 import 'package:flutter/material.dart';
@@ -27,92 +29,106 @@ class RegisterScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Register',
-                      style: TextStyle(
-                          fontSize: screenHeight / screenWidth * 40,
-                          fontWeight: FontWeight.bold),
+                    Image.asset(
+                      'assets/images/logo.png',
+                      width: screenHeight / screenWidth * 120,
+                      height: screenHeight / screenWidth * 120,
                     ),
                     SizedBox(
-                      height: screenHeight / 10,
+                      height: screenHeight * 0.02,
                     ),
-                    customTextField((String){},
+                    customTextField(
+                        (String) {},
                         null,
                         false,
                         _nameController,
                         'Name',
                         const Icon(Icons.person),
                         screenWidth,
-                        Colors.black,
-                        Colors.black45),
+                        Color.fromRGBO(9, 77, 61, 1),
+                        Color.fromRGBO(135, 182, 151, 1)),
                     SizedBox(
                       height: screenHeight / 50,
                     ),
-                    customTextField((String){},
+                    customTextField(
+                        (String) {},
                         TextInputType.emailAddress,
                         false,
                         _emailController,
                         'Email',
                         const Icon(Icons.email_outlined),
                         screenWidth,
-                        Colors.black,
-                        Colors.black45),
+                        Color.fromRGBO(9, 77, 61, 1),
+                        Color.fromRGBO(135, 182, 151, 1)),
                     SizedBox(
                       height: screenHeight / 50,
                     ),
-                    customTextField((String){},
+                    customTextField(
+                        (String) {},
                         null,
                         true,
                         _passwordController,
                         'Password',
                         const Icon(Icons.password_rounded),
                         screenWidth,
-                        Colors.black,
-                        Colors.black45),
+                        Color.fromRGBO(9, 77, 61, 1),
+                        Color.fromRGBO(135, 182, 151, 1)),
                     SizedBox(
                       height: screenHeight / 50,
                     ),
                     BlocConsumer<BasicAuthProviderBloc, BasicAuthProviderState>(
                       listener: (context, state) {
                         if (state is RegisterSuccessState) {
-                          ToastManager.show(context,
-                              "Register completed successfuly", Colors.green);
-                          Navigator.of(context)
-                              .pushReplacementNamed('loginScreen');
-                        } else if (state is RegisterErrorState) {
                           ToastManager.show(
-                              context, state.errorMessage, Colors.redAccent);
+                              context,
+                              "Register completed successfuly",
+                              Color.fromRGBO(19, 141, 113, 1));
+                          log('abl navigate fe register screen');
+                          Navigator.of(context)
+                              .pushReplacementNamed('extraDetailsScreen');
+                        } else if (state is RegisterErrorState) {
+                          ToastManager.show(context, state.errorMessage,
+                              Color.fromARGB(255, 129, 28, 21));
                         }
                       },
                       builder: (context, state) {
                         if (state is RegisterLoadingState) {
                           return const Center(
                             child: CircularProgressIndicator(
-                              color: Colors.black,
+                              color: Color.fromRGBO(9, 77, 61, 1),
                             ),
                           );
                         } else {
-                          return customButton(
-                              Colors.black, Colors.white, 'Register', () {
-                                
+                          return customButton(Color.fromRGBO(9, 77, 61, 1),
+                              Colors.white, 'Register', () {
                             FocusScope.of(context).unfocus();
                             context.read<BasicAuthProviderBloc>().add(
                                 RegisterEvent(
                                     _emailController.text,
                                     _passwordController.text,
                                     _nameController.text));
-                          }, screenWidth, screenHeight);
+                          }, screenWidth / 3, screenHeight);
                         }
                       },
                     ),
                     SizedBox(
                       height: screenHeight / 50,
                     ),
+                    Text(
+                      "Do you have an account?",
+                      style: TextStyle(
+                        fontSize: screenHeight / screenWidth * 10,
+                        color: Color.fromRGBO(9, 77, 61, 1),
+                      ),
+                    ),
+                    SizedBox(
+                      height: screenHeight / 50,
+                    ),
                     customButton(
-                        Colors.black, Colors.white, 'Have an account? Login',
+                        Color.fromRGBO(9, 77, 61, 1), Colors.white, 'Login',
                         () {
                       Navigator.of(context).pushReplacementNamed('loginScreen');
-                    }, screenWidth, screenHeight)
+                    }, screenWidth / 3, screenHeight)
                   ],
                 ),
               ),

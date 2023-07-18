@@ -1,4 +1,6 @@
 import 'package:chatty_pal/blocs/basic_auth_provider_bloc/basic_auth_provider_bloc.dart';
+import 'package:chatty_pal/services/Firestore/firestore_database.dart';
+import 'package:chatty_pal/utils/app_constants.dart';
 import 'package:chatty_pal/utils/toast_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:chatty_pal/utils/components.dart';
@@ -28,14 +30,13 @@ class LoginScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Login',
-                      style: TextStyle(
-                          fontSize: screenHeight / screenWidth * 40,
-                          fontWeight: FontWeight.bold),
+                    Image.asset(
+                      'assets/images/logo.png',
+                      width: screenHeight / screenWidth * 120,
+                      height: screenHeight / screenWidth * 120,
                     ),
                     SizedBox(
-                      height: screenHeight / 10,
+                      height: screenHeight * 0.02,
                     ),
                     customTextField(
                         (String) {},
@@ -45,20 +46,21 @@ class LoginScreen extends StatelessWidget {
                         'Email',
                         const Icon(Icons.email_outlined),
                         screenWidth,
-                        Colors.black,
-                        Colors.black45),
+                        Color.fromRGBO(9, 77, 61, 1),
+                        Color.fromRGBO(135, 182, 151, 1)),
                     SizedBox(
                       height: screenHeight / 50,
                     ),
-                    customTextField((String){},
+                    customTextField(
+                        (String) {},
                         null,
                         true,
                         _passwordController,
                         'Password',
                         const Icon(Icons.password_rounded),
                         screenWidth,
-                        Colors.black,
-                        Colors.black45),
+                        Color.fromRGBO(9, 77, 61, 1),
+                        Color.fromRGBO(135, 182, 151, 1)),
                     SizedBox(
                       height: screenHeight / 50,
                     ),
@@ -71,32 +73,49 @@ class LoginScreen extends StatelessWidget {
                           ),
                         );
                       } else {
-                        return customButton(Colors.black, Colors.white, 'Login',
+                        return customButton(
+                            Color.fromRGBO(9, 77, 61, 1), Colors.white, 'Login',
                             () async {
                           FocusScope.of(context).unfocus();
                           context.read<BasicAuthProviderBloc>().add(LoginEvent(
                               _emailController.text, _passwordController.text));
-                        }, screenWidth, screenHeight);
+                        }, screenWidth / 3, screenHeight);
                       }
-                    }), listener: (context, state) {
+                    }), listener: (context, state)async {
                       if (state is LoginSuccessState) {
-                        ToastManager.show(
-                            context, 'Login Done Successfuly', Colors.green);
+                        ToastManager.show(context, 'Login Done Successfuly',
+                            Color.fromRGBO(19, 141, 113, 1));
+                            await FirestoreDatabase.updateUser(
+                                  AppConstants.userId!, {
+                                    'bio':''
+                                  });
+                            await FirestoreDatabase.getAllChats();
                         Navigator.of(context)
                             .pushReplacementNamed('homeScreen');
                       } else if (state is LoginErrorState) {
-                        ToastManager.show(
-                            context, state.errorMeessage, Colors.red);
+                        ToastManager.show(context, state.errorMeessage,
+                            Color.fromARGB(255, 129, 28, 21));
                       }
                     }),
                     SizedBox(
                       height: screenHeight / 50,
                     ),
-                    customButton(Colors.black, Colors.white,
-                        "Don't have an account? Register", () {
+                    Text(
+                      "Don't have an account?",
+                      style: TextStyle(
+                        fontSize: screenHeight / screenWidth * 10,
+                        color: Color.fromRGBO(9, 77, 61, 1),
+                      ),
+                    ),
+                    SizedBox(
+                      height: screenHeight / 50,
+                    ),
+                    customButton(
+                        Color.fromRGBO(9, 77, 61, 1), Colors.white, "Register",
+                        () {
                       Navigator.of(context)
                           .pushReplacementNamed('registerScreen');
-                    }, screenWidth, screenHeight)
+                    }, screenWidth / 3, screenHeight)
                   ],
                 ),
               ),

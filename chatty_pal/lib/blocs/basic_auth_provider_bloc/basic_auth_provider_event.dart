@@ -32,3 +32,16 @@ class ChangeUserPasswordEvent extends BasicAuthProviderEvent {
   final String password;
   ChangeUserPasswordEvent(this.password);
 }
+
+class ChangeUserBioEvent extends BasicAuthProviderEvent {
+  final String bio;
+  ChangeUserBioEvent(this.bio);
+}
+
+class SaveUserExtraDataEvent extends BasicAuthProviderEvent {
+   File? photo;
+   String? photoPath;
+   String bioText;
+
+  SaveUserExtraDataEvent( this.photo, this.photoPath, this.bioText);
+}

@@ -1,13 +1,21 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:bloc/bloc.dart';
-import 'package:chatty_pal/models/user.dart';
+import 'package:chatty_pal/models/user.dart' as user;
 import 'package:chatty_pal/services/Auth/auth_exceptions.dart';
 import 'package:chatty_pal/services/Auth/basic_auth_provider.dart';
 import 'package:chatty_pal/services/Firestore/firestore_constants.dart';
 import 'package:chatty_pal/services/Firestore/firestore_database.dart';
 import 'package:chatty_pal/utils/app_constants.dart';
+import 'package:chatty_pal/utils/cache_manager.dart';
+import 'package:chatty_pal/utils/constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:meta/meta.dart';
 part 'basic_auth_provider_event.dart';
+
 part 'basic_auth_provider_state.dart';
 
 class BasicAuthProviderBloc
@@ -20,6 +28,7 @@ class BasicAuthProviderBloc
       emit(LoginLoadingState());
       try {
         await BasicAuthProvider.login(event.email, event.password);
+        await FirestoreDatabase.getAllUsers();
         emit(LoginSuccessState());
       } on BasicAuthException catch (e) {
         if (e is InvalidEmailAuthException) {
@@ -48,8 +57,11 @@ class BasicAuthProviderBloc
       try {
         final result = await BasicAuthProvider.register(
             event.name, event.email, event.password);
-        final newUser = User(event.name, result.user!.uid, event.email, '');
+        final newUser =
+            user.User(event.name, result.user!.uid, event.email, '', '');
         await FirestoreDatabase.addUser(newUser);
+        await BasicAuthProvider.login(event.email, event.password);
+        log('akher register function');
         emit(RegisterSuccessState());
       } on BasicAuthException catch (e) {
         if (e is InvalidEmailAuthException) {
@@ -165,6 +177,59 @@ class BasicAuthProviderBloc
       } catch (e) {
         log(e.toString());
         emit(ChangeUserPasswordErrorState('Something went wrong'));
+      }
+    });
+
+    on<ChangeUserBioEvent>((event, emit) async {
+      emit(ChangeUserBioLodaingState());
+      try {
+        await FirestoreDatabase.updateUser(
+            AppConstants.userId!, {'bio': event.bio});
+        emit(ChangeUserBioSuccessState());
+      } on BasicAuthException catch (e) {
+        log('Something went wrong');
+        emit(ChangeUserBioErrorState('Something went wrong'));
+      } catch (e) {
+        log(e.toString());
+        emit(ChangeUserPasswordErrorState('Something went wrong'));
+      }
+    });
+
+    on<SaveUserExtraDataEvent>((event, emit) async {
+      emit(SaveUserExtraDataLodaingState());
+      if (event.photo != null) {
+        final fileName = basename(event.photo!.path);
+        final destination = 'files/$fileName';
+
+        try {
+          final ref = FirebaseStorage.instance.ref(destination).child('file/');
+          final uploadTask = await ref.putFile(event.photo!);
+          final url = await uploadTask.ref.getDownloadURL();
+          await FirestoreDatabase.updateUser(
+              AppConstants.userId!, {'imgUrl': url});
+          await FirebaseAuth.instance.currentUser!.updatePhotoURL(url);
+
+          event.photoPath = url;
+        } catch (e) {
+          log('error occured');
+        }
+        AppConstants.userProfileImgUrl = event.photoPath;
+        CacheManager.setValue(userProfileImgUrlCacheKey, event.photoPath);
+      }
+      await FirestoreDatabase.updateUser(
+          AppConstants.userId!, {'bio': event.bioText});
+      if (event.bioText.isEmpty) {
+        AppConstants.userBio = '';
+        CacheManager.setValue(userBioCacheKey, '');
+      } else {
+        AppConstants.userBio = event.bioText;
+        CacheManager.setValue(userBioCacheKey, event.bioText);
+      }
+      emit(SaveUserExtraDataLodaingState());
+      try {
+        emit(SaveUserExtraDataSuccessState());
+      } catch (e) {
+        emit(SaveUserExtraDataErrorState('Something went wrong'));
       }
     });
   }

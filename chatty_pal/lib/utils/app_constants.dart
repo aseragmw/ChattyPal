@@ -8,6 +8,7 @@ class AppConstants {
   static late String? userEmail;
   static late String? userPassword;
   static late String? userProfileImgUrl;
+  static late String? userBio;
 
   static void initAppConstants() async {
     userName = await CacheManager.getValue(userNameCacheKey);
@@ -16,5 +17,6 @@ class AppConstants {
     userEmail = await CacheManager.getValue(userEmailCacheKey);
     userPassword = await CacheManager.getValue(userPasswordCacheKey);
     userProfileImgUrl = await CacheManager.getValue(userProfileImgUrlCacheKey);
+    userBio = await CacheManager.getValue(userBioCacheKey);
   }
 }
