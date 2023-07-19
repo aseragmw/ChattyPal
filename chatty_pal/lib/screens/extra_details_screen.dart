@@ -167,7 +167,11 @@ class _ExtraDetailsScreenState extends State<ExtraDetailsScreen> {
                               await FirestoreDatabase.updateUser(
                                   AppConstants.userId!, {'bio': ''});
                               // await FirestoreDatabase.getAllChats();
+                              log('before bloc call');
+
                               context.read<ChatsBloc>().add(GetAllChatsEvent());
+                              log('after bloc call');
+
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   'homeScreen', (route) => false);
                             }
@@ -184,17 +188,24 @@ class _ExtraDetailsScreenState extends State<ExtraDetailsScreen> {
                             } else {
                               return customButton(Color.fromRGBO(9, 77, 61, 1),
                                   Colors.white, "Save", () async {
+                                log('before updaate info bloc call');
                                 context.read<BasicAuthProviderBloc>().add(
                                     SaveUserExtraDataEvent(_photo, _photoPath,
                                         _bioController.text));
+                                        log('after updaate info bloc call');
                               }, screenWidth / 6, screenHeight);
                             }
                           }), listener: ((context, state) async {
                             if (state is SaveUserExtraDataSuccessState) {
+                              log('before updaate user bio  call');
                               await FirestoreDatabase.updateUser(
                                   AppConstants.userId!, {'bio': ''});
+                                   log('after updaate user bio  call');
                               // await FirestoreDatabase.getAllChats();
+                              log('before get allchats  bloc call');
                               context.read<ChatsBloc>().add(GetAllChatsEvent());
+                                                            log('before get allchats  bloc call');
+
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   'homeScreen', (route) => false);
                             } else if (state is SaveUserExtraDataErrorState) {

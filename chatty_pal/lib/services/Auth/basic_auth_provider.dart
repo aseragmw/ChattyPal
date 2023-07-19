@@ -124,19 +124,21 @@ class BasicAuthProvider {
 
   static Future<void> logout() async {
     try {
-      await firebaseAuth.signOut();
       CacheManager.setValue(userIsLoggedInCacheKey, false);
       CacheManager.setValue(userNameCacheKey, '');
       CacheManager.setValue(userIdCacheKey, '');
       CacheManager.setValue(userEmailCacheKey, '');
       CacheManager.setValue(userProfileImgUrlCacheKey, '');
       CacheManager.setValue(userPasswordCacheKey, '');
+      CacheManager.setValue(userBioCacheKey, '');
       AppConstants.userIsLoggedIn = false;
       AppConstants.userName = '';
       AppConstants.userId = '';
       AppConstants.userEmail = '';
       AppConstants.userProfileImgUrl = '';
       AppConstants.userPassword = '';
+      AppConstants.userBio = '';
+      await firebaseAuth.signOut();
     } catch (e) {
       throw OperationErrorAuthException();
     }

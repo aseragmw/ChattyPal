@@ -41,9 +41,11 @@ class SettingsScreen extends StatelessWidget {
                     SizedBox(
                       height: screenHeight * 0.01,
                     ),
-                    optionButton(screenWidth, screenHeight, () {
+                    optionButton(screenWidth, screenHeight, () async {
                       context.read<BasicAuthProviderBloc>().add(LogoutEvent());
-                      Navigator.of(context).pushNamedAndRemoveUntil('loginScreen',(Route<dynamic> route) =>false);
+                     //  await BasicAuthProvider.logout();
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          'loginScreen', (Route<dynamic> route) => false);
                     }, Icons.logout, 'Logout',
                         Color.fromRGBO(135, 182, 151, 1)),
                   ],

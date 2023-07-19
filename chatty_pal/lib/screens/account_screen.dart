@@ -151,9 +151,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                             ),
                                           )
                                         : ClipOval(
-                                            child: AppConstants
+                                            child: (AppConstants
                                                         .userProfileImgUrl !=
-                                                    null
+                                                    null||AppConstants.userProfileImgUrl!='')
                                                 ? CachedNetworkImage(
                                                     imageUrl: AppConstants
                                                         .userProfileImgUrl!,

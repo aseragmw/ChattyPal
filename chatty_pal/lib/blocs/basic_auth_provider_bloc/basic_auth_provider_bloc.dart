@@ -28,7 +28,7 @@ class BasicAuthProviderBloc
       emit(LoginLoadingState());
       try {
         await BasicAuthProvider.login(event.email, event.password);
-       // await FirestoreDatabase.getAllUsers();
+        // await FirestoreDatabase.getAllUsers();
         // await FirestoreDatabase.getAllChats();
         emit(LoginSuccessState());
       } on BasicAuthException catch (e) {
@@ -198,36 +198,38 @@ class BasicAuthProviderBloc
 
     on<SaveUserExtraDataEvent>((event, emit) async {
       emit(SaveUserExtraDataLodaingState());
-      
+
       try {
         if (event.photo != null) {
-        final fileName = basename(event.photo!.path);
-        final destination = 'files/$fileName';
+          final fileName = basename(event.photo!.path);
+          final destination = 'files/$fileName';
 
-        try {
-          final ref = FirebaseStorage.instance.ref(destination).child('file/');
-          final uploadTask = await ref.putFile(event.photo!);
-          final url = await uploadTask.ref.getDownloadURL();
-          await FirestoreDatabase.updateUser(
-              AppConstants.userId!, {'imgUrl': url});
-          await FirebaseAuth.instance.currentUser!.updatePhotoURL(url);
+          try {
+            final ref =
+                FirebaseStorage.instance.ref(destination).child('file/');
+            final uploadTask = await ref.putFile(event.photo!);
+            final url = await uploadTask.ref.getDownloadURL();
+            await FirestoreDatabase.updateUser(
+                AppConstants.userId!, {'imgUrl': url});
+            await FirebaseAuth.instance.currentUser!.updatePhotoURL(url);
 
-          event.photoPath = url;
-        } catch (e) {
-          log('error occured');
+            event.photoPath = url;
+          } catch (e) {
+            log('error occured');
+          }
+          AppConstants.userProfileImgUrl = event.photoPath;
+          CacheManager.setValue(userProfileImgUrlCacheKey, event.photoPath);
         }
-        AppConstants.userProfileImgUrl = event.photoPath;
-        CacheManager.setValue(userProfileImgUrlCacheKey, event.photoPath);
-      }
-      await FirestoreDatabase.updateUser(
-          AppConstants.userId!, {'bio': event.bioText});
-      if (event.bioText.isEmpty) {
-        AppConstants.userBio = '';
-        CacheManager.setValue(userBioCacheKey, '');
-      } else {
-        AppConstants.userBio = event.bioText;
-        CacheManager.setValue(userBioCacheKey, event.bioText);
-      }
+        await FirestoreDatabase.updateUser(
+            AppConstants.userId!, {'bio': event.bioText});
+        if (event.bioText.isEmpty) {
+          AppConstants.userBio = '';
+          CacheManager.setValue(userBioCacheKey, '');
+        } else {
+          AppConstants.userBio = event.bioText;
+          CacheManager.setValue(userBioCacheKey, event.bioText);
+        }
+        emit(SaveUserExtraDataSuccessState());
       } catch (e) {
         emit(SaveUserExtraDataErrorState('Something went wrong'));
       }

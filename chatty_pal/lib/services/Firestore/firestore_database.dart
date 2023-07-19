@@ -172,7 +172,6 @@ class FirestoreDatabase {
 
   static Future<void> deleteChat(String fromId, String toId) async {
     try {
-      Stream<QuerySnapshot<Map<String, dynamic>>> res = Stream.empty();
       await _firestoreDatabase
           .collection('chats')
           .where('fromId', isEqualTo: fromId)

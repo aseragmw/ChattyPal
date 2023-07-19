@@ -18,9 +18,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (AppConstants.userProfileImgUrl == null) {
-      log('null');
-    }
     // context.read<ChatsBloc>().add(GetAllChatsEvent());
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -98,10 +95,16 @@ class HomeScreen extends StatelessWidget {
                           radius: 25,
                           child: ClipRRect(
                               borderRadius: BorderRadius.circular(50),
-                              child: AppConstants.userProfileImgUrl != null
+                              child: (AppConstants.userProfileImgUrl != null ||
+                                      AppConstants.userProfileImgUrl != '')
                                   ? BlocBuilder<BasicAuthProviderBloc,
                                       BasicAuthProviderState>(
                                       builder: (context, state) {
+                                        if (state is LogoutLoadingState ||
+                                            state is LogoutSuccessState) {
+                                          return SizedBox();
+                                        }
+                                        else
                                         return CachedNetworkImage(
                                             imageUrl: AppConstants
                                                 .userProfileImgUrl!);
@@ -180,7 +183,8 @@ class HomeScreen extends StatelessWidget {
                                                                   1]['content'],
                                                           messageTime,
                                                           chatStreamSnapshot
-                                                              .data![index]);
+                                                              .data![index],
+                                                          context);
                                                     } else {
                                                       return SizedBox();
                                                     }
@@ -222,7 +226,8 @@ class HomeScreen extends StatelessWidget {
                                 state.searchResult[index].userName,
                                 '',
                                 '',
-                                state.searchResult[index]);
+                                state.searchResult[index],
+                                context);
                           })));
                 } else {
                   return Padding(
@@ -251,13 +256,24 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-Widget chatTile(Function() onTap, double screenWidth, double screenHeight,
-    String username, String message, String messageTime, User user) {
+Widget chatTile(
+  Function() onTap,
+  double screenWidth,
+  double screenHeight,
+  String username,
+  String message,
+  String messageTime,
+  User user,
+  BuildContext context,
+) {
   return Column(
     children: [
       Padding(
         padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
         child: InkWell(
+          onLongPress: () {
+            showChatSettings(context, AppConstants.userId!, user.userId);
+          },
           onTap: onTap,
           child: Container(
             decoration: BoxDecoration(
@@ -334,4 +350,27 @@ Widget chatTile(Function() onTap, double screenWidth, double screenHeight,
       )
     ],
   );
+}
+
+void showChatSettings(context, String fromId, String toId) {
+  showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: Container(
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.delete_forever),
+                  title: Text('Delte Chat'),
+                  onTap: () async {
+                    await FirestoreDatabase.deleteChat(fromId, toId);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      });
 }
