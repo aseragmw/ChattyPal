@@ -192,19 +192,18 @@ class _ExtraDetailsScreenState extends State<ExtraDetailsScreen> {
                                 context.read<BasicAuthProviderBloc>().add(
                                     SaveUserExtraDataEvent(_photo, _photoPath,
                                         _bioController.text));
-                                        log('after updaate info bloc call');
+                                log('after updaate info bloc call');
                               }, screenWidth / 6, screenHeight);
                             }
                           }), listener: ((context, state) async {
                             if (state is SaveUserExtraDataSuccessState) {
                               log('before updaate user bio  call');
-                              await FirestoreDatabase.updateUser(
-                                  AppConstants.userId!, {'bio': ''});
-                                   log('after updaate user bio  call');
+
+                              log('after updaate user bio  call');
                               // await FirestoreDatabase.getAllChats();
                               log('before get allchats  bloc call');
                               context.read<ChatsBloc>().add(GetAllChatsEvent());
-                                                            log('before get allchats  bloc call');
+                              log('before get allchats  bloc call');
 
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   'homeScreen', (route) => false);
