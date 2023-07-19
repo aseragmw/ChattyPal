@@ -78,19 +78,20 @@ class _ChatScreenState extends State<ChatScreen> {
                             color: Colors.white,
                           )),
                       CircleAvatar(
-                        backgroundColor: Colors.transparent,
-                        radius: 25,
-                        child: ClipOval(
+                          backgroundColor: Colors.transparent,
+                          radius: 25,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(100),
                             child: CachedNetworkImage(
-                          // width: 10,
-                          // height: 10,
-                          imageUrl: widget.reciverUser.userProfileImage,
-                          placeholder: (context, url) =>
-                              CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              Icon(Icons.error),
-                        )),
-                      ),
+                              // width: 100,
+                              // height: 100,
+                              imageUrl: widget.reciverUser.userProfileImage,
+                              placeholder: (context, url) =>
+                                  CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
+                            ),
+                          )),
                       SizedBox(
                         width: screenWidth / 25,
                       ),
@@ -221,7 +222,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       _messageController.text,
                                       DateTime.now());
 
-                                  FocusScope.of(context).unfocus();
+                                  // FocusScope.of(context).unfocus();
                                   _messageController.text = '';
                                 },
                                 icon: Icon(Icons.send)),

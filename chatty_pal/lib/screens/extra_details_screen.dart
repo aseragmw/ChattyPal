@@ -155,10 +155,9 @@ class _ExtraDetailsScreenState extends State<ExtraDetailsScreen> {
                               AppConstants.userBio = '';
                               CacheManager.setValue(userBioCacheKey, '');
                               await FirestoreDatabase.updateUser(
-                                  AppConstants.userId!, {
-                                    'bio':''
-                                  });
-                              await FirestoreDatabase.getAllChats();
+                                  AppConstants.userId!, {'bio': ''});
+                              // await FirestoreDatabase.getAllChats();
+                              context.read<ChatsBloc>().add(GetAllChatsEvent());
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   'homeScreen', (route) => false);
                             } else {
@@ -166,10 +165,9 @@ class _ExtraDetailsScreenState extends State<ExtraDetailsScreen> {
                               CacheManager.setValue(
                                   userBioCacheKey, _bioController.text);
                               await FirestoreDatabase.updateUser(
-                                  AppConstants.userId!, {
-                                    'bio':''
-                                  });
-                              await FirestoreDatabase.getAllChats();
+                                  AppConstants.userId!, {'bio': ''});
+                              // await FirestoreDatabase.getAllChats();
+                              context.read<ChatsBloc>().add(GetAllChatsEvent());
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   'homeScreen', (route) => false);
                             }
@@ -194,10 +192,9 @@ class _ExtraDetailsScreenState extends State<ExtraDetailsScreen> {
                           }), listener: ((context, state) async {
                             if (state is SaveUserExtraDataSuccessState) {
                               await FirestoreDatabase.updateUser(
-                                  AppConstants.userId!, {
-                                    'bio':''
-                                  });
-                              await FirestoreDatabase.getAllChats();
+                                  AppConstants.userId!, {'bio': ''});
+                              // await FirestoreDatabase.getAllChats();
+                              context.read<ChatsBloc>().add(GetAllChatsEvent());
                               Navigator.of(context).pushNamedAndRemoveUntil(
                                   'homeScreen', (route) => false);
                             } else if (state is SaveUserExtraDataErrorState) {

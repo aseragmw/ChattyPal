@@ -1,4 +1,5 @@
 import 'package:chatty_pal/blocs/basic_auth_provider_bloc/basic_auth_provider_bloc.dart';
+import 'package:chatty_pal/blocs/chats_bloc/chats_bloc.dart';
 import 'package:chatty_pal/services/Firestore/firestore_database.dart';
 import 'package:chatty_pal/utils/app_constants.dart';
 import 'package:chatty_pal/utils/toast_manager.dart';
@@ -81,15 +82,14 @@ class LoginScreen extends StatelessWidget {
                               _emailController.text, _passwordController.text));
                         }, screenWidth / 3, screenHeight);
                       }
-                    }), listener: (context, state)async {
+                    }), listener: (context, state) async {
                       if (state is LoginSuccessState) {
                         ToastManager.show(context, 'Login Done Successfuly',
                             Color.fromRGBO(19, 141, 113, 1));
-                            await FirestoreDatabase.updateUser(
-                                  AppConstants.userId!, {
-                                    'bio':''
-                                  });
-                            await FirestoreDatabase.getAllChats();
+                        await FirestoreDatabase.updateUser(
+                            AppConstants.userId!, {'bio': ''});
+                        // await FirestoreDatabase.getAllChats();
+                        context.read<ChatsBloc>().add(GetAllChatsEvent());
                         Navigator.of(context)
                             .pushReplacementNamed('homeScreen');
                       } else if (state is LoginErrorState) {

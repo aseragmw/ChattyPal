@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatty_pal/blocs/basic_auth_provider_bloc/basic_auth_provider_bloc.dart';
 import 'package:chatty_pal/screens/extra_details_screen.dart';
 import 'package:chatty_pal/services/Firestore/firestore_database.dart';
@@ -122,81 +123,48 @@ class _AccountScreenState extends State<AccountScreen> {
                         child: BlocConsumer<BasicAuthProviderBloc,
                             BasicAuthProviderState>(
                           builder: (context, state) {
-                            if (state is SaveUserExtraDataLodaingState) {
-                              return Center(
-                                  child: CircularProgressIndicator(
-                                color: Color.fromRGBO(9, 77, 61, 1),
-                              ));
-                            } else {
-                              return CircleAvatar(
-                                  radius: 60,
-                                  backgroundColor: Color.fromRGBO(9, 77, 61, 1),
-                                  child: _photo != null
-                                      ? ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(50),
-                                          child: Image.file(
-                                            _photo!,
+                            return CircleAvatar(
+                                radius: 60,
+                                backgroundColor: Color.fromRGBO(9, 77, 61, 1),
+                                child: _photo != null
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(50),
+                                        child: Image.file(
+                                          _photo!,
+                                          width: 100,
+                                          height: 100,
+                                          fit: BoxFit.fitHeight,
+                                        ),
+                                      )
+                                    : AppConstants.userProfileImgUrl == null
+                                        ? Container(
+                                            decoration: BoxDecoration(
+                                                color: Colors.grey[200],
+                                                borderRadius:
+                                                    BorderRadius.circular(50)),
                                             width: 100,
                                             height: 100,
-                                            fit: BoxFit.fitHeight,
-                                          ),
-                                        )
-                                      : AppConstants.userProfileImgUrl == null
-                                          ? Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.grey[200],
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          50)),
-                                              width: 100,
-                                              height: 100,
-                                              child: Icon(
-                                                Icons.camera_alt,
-                                                size: 50,
-                                                color: Colors.grey[800],
-                                              ),
-                                            )
-                                          : ClipOval(
-                                              child: AppConstants
-                                                          .userProfileImgUrl !=
-                                                      null
-                                                  ? FutureBuilder(
-                                                      future: FirestoreDatabase
-                                                          .getUserProfilePicture(
-                                                              AppConstants
-                                                                  .userProfileImgUrl!),
-                                                      builder:
-                                                          (context, snapshot) {
-                                                        switch (snapshot
-                                                            .connectionState) {
-                                                          case ConnectionState
-                                                              .done:
-                                                            return Image
-                                                                .network(
-                                                              snapshot.data!,
-                                                              width: screenHeight /
-                                                                  screenWidth *
-                                                                  50,
-                                                              height:
-                                                                  screenHeight /
-                                                                      screenWidth *
-                                                                      50,
-                                                            );
-                                                          default:
-                                                            return CircularProgressIndicator(
-                                                              color: Color
-                                                                  .fromRGBO(
-                                                                      135,
-                                                                      182,
-                                                                      151,
-                                                                      1),
-                                                            );
-                                                        }
-                                                      },
-                                                    )
-                                                  : Icon(Icons.person)));
-                            }
+                                            child: Icon(
+                                              Icons.camera_alt,
+                                              size: 50,
+                                              color: Colors.grey[800],
+                                            ),
+                                          )
+                                        : ClipOval(
+                                            child: AppConstants
+                                                        .userProfileImgUrl !=
+                                                    null
+                                                ? CachedNetworkImage(
+                                                    imageUrl: AppConstants
+                                                        .userProfileImgUrl!,
+                                                    width: screenHeight /
+                                                        screenWidth *
+                                                        50,
+                                                    height: screenHeight /
+                                                        screenWidth *
+                                                        50,
+                                                  )
+                                                : Icon(Icons.person)));
                           },
                           listener: (context, state) {},
                         )),
@@ -222,6 +190,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 onTap: () async {
                                   if (_nameController.text !=
                                       AppConstants.userName) {
+                                    FocusScope.of(context).unfocus();
                                     context.read<BasicAuthProviderBloc>().add(
                                         ChangeUserDisplayNameEvent(
                                             _nameController.text));
@@ -267,6 +236,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 onTap: () async {
                                   if (_emailController.text !=
                                       AppConstants.userEmail) {
+                                    FocusScope.of(context).unfocus();
                                     context.read<BasicAuthProviderBloc>().add(
                                         ChangeUserEmailEvent(
                                             _emailController.text));
@@ -311,12 +281,10 @@ class _AccountScreenState extends State<AccountScreen> {
                                 onTap: () async {
                                   if (_bioController.text !=
                                       AppConstants.userBio) {
-                                    log('here?');
-
+                                    FocusScope.of(context).unfocus();
                                     context.read<BasicAuthProviderBloc>().add(
                                         ChangeUserBioEvent(
                                             _bioController.text));
-                                    log('here 2 ?');
                                   }
                                 },
                                 child: Icon(Icons.done));

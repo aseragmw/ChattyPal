@@ -28,7 +28,8 @@ class BasicAuthProviderBloc
       emit(LoginLoadingState());
       try {
         await BasicAuthProvider.login(event.email, event.password);
-        await FirestoreDatabase.getAllUsers();
+       // await FirestoreDatabase.getAllUsers();
+        // await FirestoreDatabase.getAllChats();
         emit(LoginSuccessState());
       } on BasicAuthException catch (e) {
         if (e is InvalidEmailAuthException) {
@@ -197,7 +198,9 @@ class BasicAuthProviderBloc
 
     on<SaveUserExtraDataEvent>((event, emit) async {
       emit(SaveUserExtraDataLodaingState());
-      if (event.photo != null) {
+      
+      try {
+        if (event.photo != null) {
         final fileName = basename(event.photo!.path);
         final destination = 'files/$fileName';
 
@@ -225,9 +228,6 @@ class BasicAuthProviderBloc
         AppConstants.userBio = event.bioText;
         CacheManager.setValue(userBioCacheKey, event.bioText);
       }
-      emit(SaveUserExtraDataLodaingState());
-      try {
-        emit(SaveUserExtraDataSuccessState());
       } catch (e) {
         emit(SaveUserExtraDataErrorState('Something went wrong'));
       }

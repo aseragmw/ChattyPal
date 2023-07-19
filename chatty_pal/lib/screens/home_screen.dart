@@ -1,7 +1,10 @@
 import 'dart:developer';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chatty_pal/blocs/basic_auth_provider_bloc/basic_auth_provider_bloc.dart';
 import 'package:chatty_pal/blocs/chats_bloc/chats_bloc.dart';
 import 'package:chatty_pal/models/user.dart';
 import 'package:chatty_pal/screens/chat_screen.dart';
+import 'package:chatty_pal/services/Auth/basic_auth_provider.dart';
 import 'package:chatty_pal/services/Firestore/firestore_database.dart';
 import 'package:chatty_pal/utils/app_constants.dart';
 import 'package:chatty_pal/utils/toast_manager.dart';
@@ -21,6 +24,7 @@ class HomeScreen extends StatelessWidget {
     // context.read<ChatsBloc>().add(GetAllChatsEvent());
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -90,24 +94,17 @@ class HomeScreen extends StatelessWidget {
                           Navigator.of(context).pushNamed('settingsScreen');
                         },
                         child: CircleAvatar(
-                          backgroundColor: Colors.white,
+                          backgroundColor: Colors.transparent,
                           radius: 25,
-                          child: ClipOval(
+                          child: ClipRRect(
+                              borderRadius: BorderRadius.circular(50),
                               child: AppConstants.userProfileImgUrl != null
-                                  ? FutureBuilder(
-                                      future: FirestoreDatabase
-                                          .getUserProfilePicture(
-                                              AppConstants.userProfileImgUrl!),
-                                      builder: (context, snapshot) {
-                                        switch (snapshot.connectionState) {
-                                          case ConnectionState.done:
-                                            return Image.network(snapshot.data!);
-                                          default:
-                                            return CircularProgressIndicator(
-                                              color: Color.fromRGBO(
-                                                  135, 182, 151, 1),
-                                            );
-                                        }
+                                  ? BlocBuilder<BasicAuthProviderBloc,
+                                      BasicAuthProviderState>(
+                                      builder: (context, state) {
+                                        return CachedNetworkImage(
+                                            imageUrl: AppConstants
+                                                .userProfileImgUrl!);
                                       },
                                     )
                                   : Icon(Icons.person)),
@@ -181,7 +178,9 @@ class HomeScreen extends StatelessWidget {
                                                                       .docs
                                                                       .length -
                                                                   1]['content'],
-                                                          messageTime);
+                                                          messageTime,
+                                                          chatStreamSnapshot
+                                                              .data![index]);
                                                     } else {
                                                       return SizedBox();
                                                     }
@@ -210,23 +209,27 @@ class HomeScreen extends StatelessWidget {
                           itemCount: state.searchResult.length,
                           itemBuilder: ((context, index) {
                             return chatTile(() {
-                              _searchController.text = '';
+                              // _searchController.text = '';
 
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => ChatScreen(
                                         reciverUser: state.searchResult[index],
                                       )));
                               FocusScope.of(context).unfocus();
-                            }, screenWidth, screenHeight,
-                                state.searchResult[index].userName, '', '');
+                            },
+                                screenWidth,
+                                screenHeight,
+                                state.searchResult[index].userName,
+                                '',
+                                '',
+                                state.searchResult[index]);
                           })));
                 } else {
                   return Padding(
                     padding: EdgeInsets.fromLTRB(0, screenHeight / 3, 0, 0),
                     child: Center(
                         child: CircularProgressIndicator(
-                      color: Color.fromRGBO(9, 77, 61, 1),
-                    )),
+                            color: Color.fromRGBO(9, 77, 61, 1))),
                   );
                 }
               }, listener: (context, state) {
@@ -249,7 +252,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 Widget chatTile(Function() onTap, double screenWidth, double screenHeight,
-    String username, String message, String messageTime) {
+    String username, String message, String messageTime, User user) {
   return Column(
     children: [
       Padding(
@@ -267,15 +270,27 @@ Widget chatTile(Function() onTap, double screenWidth, double screenHeight,
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: Color.fromRGBO(9, 77, 61, 1),
-                    radius: 28,
-                    child: ClipOval(
-                        child: Icon(
-                      Icons.person_3_rounded,
-                      color: Colors.white,
-                      size: screenHeight / screenWidth * 20,
-                    )),
-                  ),
+                      backgroundColor: Colors.transparent,
+                      radius: 28,
+                      child: (user.userProfileImage == null ||
+                              user.userProfileImage == '')
+                          ? ClipOval(
+                              child: Icon(
+                              Icons.person_3_rounded,
+                              color: Colors.white,
+                              size: screenHeight / screenWidth * 20,
+                            ))
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(50),
+                              child: CachedNetworkImage(
+                                // width: 10,
+                                // height: 10,
+                                imageUrl: user.userProfileImage,
+                                placeholder: (context, url) =>
+                                    CircularProgressIndicator(),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
+                              ))),
                   SizedBox(
                     width: screenWidth * 0.03,
                   ),

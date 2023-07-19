@@ -38,6 +38,7 @@ class ChangeUserBioEvent extends BasicAuthProviderEvent {
   ChangeUserBioEvent(this.bio);
 }
 
+
 class SaveUserExtraDataEvent extends BasicAuthProviderEvent {
    File? photo;
    String? photoPath;
