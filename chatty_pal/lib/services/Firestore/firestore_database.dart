@@ -58,20 +58,20 @@ class FirestoreDatabase {
     } catch (e) {}
   }
 
-  static Future<void> sendMessage(
-      String fromId, String toId, String content, DateTime timeStamp) async {
-    try {
-      await _firestoreDatabase.collection('messages').add({
-        'fromId': fromId,
-        'toId': toId,
-        'content': content,
-        'timeStamp': timeStamp
-      });
-    } catch (e) {}
-  }
+  // static Future<void> sendMessage(
+  //     String fromId, String toId, String content, DateTime timeStamp) async {
+  //   try {
+  //     await _firestoreDatabase.collection('messages').add({
+  //       'fromId': fromId,
+  //       'toId': toId,
+  //       'content': content,
+  //       'timeStamp': timeStamp
+  //     });
+  //   } catch (e) {}
+  // }
 
-  static Future<void> sendAMessage(
-      String fromId, String toId, String content, DateTime timeStamp) async {
+  static Future<void> sendAMessage(String fromId, String toId, dynamic content,
+      DateTime timeStamp, String type) async {
     try {
       _firestoreDatabase
           .collection('chats')
@@ -87,11 +87,12 @@ class FirestoreDatabase {
               .where('toId', isEqualTo: toId)
               .get()
               .then((value) {
-            value.docs[0].reference.collection('messages').add({
+            final ref = value.docs[0].reference.collection('messages').add({
               'fromId': fromId,
               'toId': toId,
               'content': content,
-              'timeStamp': timeStamp
+              'timeStamp': timeStamp,
+              'type': type
             });
           });
         } else {
@@ -103,7 +104,8 @@ class FirestoreDatabase {
               'fromId': fromId,
               'toId': toId,
               'content': content,
-              'timeStamp': timeStamp
+              'timeStamp': timeStamp,
+              'type': type
             });
           });
         }
@@ -127,7 +129,8 @@ class FirestoreDatabase {
                 'fromId': fromId,
                 'toId': toId,
                 'content': content,
-                'timeStamp': timeStamp
+                'timeStamp': timeStamp,
+                'type': type
               });
             });
           } else {
@@ -139,7 +142,8 @@ class FirestoreDatabase {
                 'fromId': fromId,
                 'toId': toId,
                 'content': content,
-                'timeStamp': timeStamp
+                'timeStamp': timeStamp,
+                'type': type
               });
             });
           }
@@ -179,6 +183,26 @@ class FirestoreDatabase {
           .get()
           .then((value) {
         value.docs.first.reference.delete();
+      });
+    } catch (e) {}
+  }
+
+  static Future<void> deleteAMessage(
+      String fromId, String toId, DateTime timeStamp) async {
+    try {
+      await _firestoreDatabase
+          .collection('chats')
+          .where('fromId', isEqualTo: fromId)
+          .where('toId', isEqualTo: toId)
+          .get()
+          .then((value) {
+        value.docs.first.reference
+            .collection('messages')
+            .where('timeStamp', isEqualTo: timeStamp)
+            .get()
+            .then((value) {
+          value.docs.first.reference.delete();
+        });
       });
     } catch (e) {}
   }

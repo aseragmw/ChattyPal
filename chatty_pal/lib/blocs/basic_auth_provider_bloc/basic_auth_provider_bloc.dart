@@ -209,6 +209,7 @@ class BasicAuthProviderBloc
                 FirebaseStorage.instance.ref(destination).child('file/');
             final uploadTask = await ref.putFile(event.photo!);
             final url = await uploadTask.ref.getDownloadURL();
+            log('hereeeeeeeeeeeeeeeeeee');
             await FirestoreDatabase.updateUser(
                 AppConstants.userId!, {'imgUrl': url});
             await FirebaseAuth.instance.currentUser!.updatePhotoURL(url);

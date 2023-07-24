@@ -40,7 +40,7 @@ class _ExtraDetailsScreenState extends State<ExtraDetailsScreen> {
   final ImagePicker _picker = ImagePicker();
 
   Future imgFromGallery() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery,maxHeight: 480, maxWidth: 640,imageQuality: 50);
 
     setState(() {
       if (pickedFile != null) {
@@ -52,7 +52,7 @@ class _ExtraDetailsScreenState extends State<ExtraDetailsScreen> {
   }
 
   Future imgFromCamera() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await _picker.pickImage(source: ImageSource.camera,maxHeight: 480, maxWidth: 640,imageQuality: 50);
 
     setState(() {
       if (pickedFile != null) {

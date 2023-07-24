@@ -32,7 +32,6 @@ class _AccountScreenState extends State<AccountScreen> {
 
   final _bioController = TextEditingController()..text = AppConstants.userBio!;
 
-  FirebaseStorage storage = FirebaseStorage.instance;
 
   File? _photo;
 
@@ -41,7 +40,7 @@ class _AccountScreenState extends State<AccountScreen> {
   final ImagePicker _picker = ImagePicker();
 
   Future imgFromGallery(BuildContext context) async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery,maxHeight: 480, maxWidth: 640,imageQuality: 50);
 
     setState(() {
       if (pickedFile != null) {
@@ -55,7 +54,7 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Future imgFromCamera(BuildContext context) async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+    final pickedFile = await _picker.pickImage(source: ImageSource.camera,maxHeight: 480, maxWidth: 640,imageQuality: 50);
 
     setState(() {
       if (pickedFile != null) {
@@ -79,15 +78,15 @@ class _AccountScreenState extends State<AccountScreen> {
                   new ListTile(
                       leading: new Icon(Icons.photo_library),
                       title: new Text('Gallery'),
-                      onTap: () {
-                        imgFromGallery(context);
+                      onTap: () async{
+                        await imgFromGallery(context);
                         Navigator.of(context).pop();
                       }),
                   new ListTile(
                     leading: new Icon(Icons.photo_camera),
                     title: new Text('Camera'),
-                    onTap: () {
-                      imgFromCamera(context);
+                    onTap: () async{
+                      await imgFromCamera(context);
                       Navigator.of(context).pop();
                     },
                   ),

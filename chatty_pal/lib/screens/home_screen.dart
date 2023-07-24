@@ -103,11 +103,10 @@ class HomeScreen extends StatelessWidget {
                                         if (state is LogoutLoadingState ||
                                             state is LogoutSuccessState) {
                                           return SizedBox();
-                                        }
-                                        else
-                                        return CachedNetworkImage(
-                                            imageUrl: AppConstants
-                                                .userProfileImgUrl!);
+                                        } else
+                                          return CachedNetworkImage(
+                                              imageUrl: AppConstants
+                                                  .userProfileImgUrl!);
                                       },
                                     )
                                   : Icon(Icons.person)),
@@ -154,9 +153,10 @@ class HomeScreen extends StatelessWidget {
                                                               .toDate()
                                                               .toString());
 
-                                                      messageTime +=
-                                                          (date.second)
-                                                              .toString();
+                                                      messageTime += (date.day)
+                                                              .toString() +
+                                                          '/' +
+                                                          date.month.toString();
 
                                                       return chatTile(() {
                                                         FocusScope.of(context)
@@ -175,15 +175,25 @@ class HomeScreen extends StatelessWidget {
                                                           chatStreamSnapshot
                                                               .data![index]
                                                               .userName,
-                                                          snapshot.data!.docs[
-                                                              snapshot
+                                                          snapshot.data!.docs[snapshot.data!.docs.length - 1]
+                                                                      [
+                                                                      'type'] ==
+                                                                  'text'
+                                                              ? snapshot.data!
+                                                                  .docs[snapshot
                                                                       .data!
                                                                       .docs
                                                                       .length -
-                                                                  1]['content'],
+                                                                  1]['content']
+                                                              : snapshot.data!.docs[snapshot.data!.docs.length - 1]['type'] ==
+                                                                      'image'
+                                                                  ? 'PHOTO'
+                                                                  : snapshot
+                                                                          .data!
+                                                                          .docs[snapshot.data!.docs.length - 1]
+                                                                      ['content'],
                                                           messageTime,
-                                                          chatStreamSnapshot
-                                                              .data![index],
+                                                          chatStreamSnapshot.data![index],
                                                           context);
                                                     } else {
                                                       return SizedBox();
@@ -213,7 +223,7 @@ class HomeScreen extends StatelessWidget {
                           itemCount: state.searchResult.length,
                           itemBuilder: ((context, index) {
                             return chatTile(() {
-                              // _searchController.text = '';
+                              _searchController.text = '';
 
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => ChatScreen(

@@ -7,6 +7,7 @@ import 'package:chatty_pal/screens/chat_screen.dart';
 import 'package:chatty_pal/screens/extra_details_screen.dart';
 import 'package:chatty_pal/screens/home_screen.dart';
 import 'package:chatty_pal/screens/login_screen.dart';
+import 'package:chatty_pal/screens/reciever_profile_screen.dart';
 import 'package:chatty_pal/screens/register_screen.dart';
 import 'package:chatty_pal/screens/settings_screen.dart';
 import 'package:chatty_pal/screens/splash_screen.dart';
