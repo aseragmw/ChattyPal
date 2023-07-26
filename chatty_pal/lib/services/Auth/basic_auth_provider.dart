@@ -1,8 +1,10 @@
 import 'dart:developer';
 
 import 'package:chatty_pal/services/Auth/auth_exceptions.dart';
+import 'package:chatty_pal/services/Firestore/firestore_database.dart';
 import 'package:chatty_pal/utils/cache_manager.dart';
 import 'package:chatty_pal/utils/constants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chatty_pal/utils/app_constants.dart';
 

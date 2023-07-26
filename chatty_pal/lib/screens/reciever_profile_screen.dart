@@ -111,19 +111,25 @@ class RecieverProfileScreen extends StatelessWidget {
         FocusScope.of(context).unfocus();
       },
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+        ),
         backgroundColor: Color.fromRGBO(9, 77, 61, 1),
         body: CustomScrollView(
           slivers: [
             SliverFillRemaining(
               hasScrollBody: false,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth / 30),
+                // padding: EdgeInsets.symmetric(horizontal: screenWidth / 30,),
+                padding: EdgeInsets.fromLTRB(
+                    screenWidth / 30, 0, screenWidth / 30, screenHeight * 0.2),
+
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CircleAvatar(
                       backgroundColor: Colors.white,
-                      radius: screenHeight / screenHeight * 150,
+                      radius: screenHeight / screenHeight * 120,
                       child: ClipOval(
                           child: (recieverUser.userProfileImage != null ||
                                   recieverUser.userProfileImage != '')
@@ -135,24 +141,58 @@ class RecieverProfileScreen extends StatelessWidget {
                               : Icon(Icons.person)),
                     ),
                     SizedBox(
-                      height: screenHeight / 50,
+                      height: screenHeight / 20,
                     ),
-                    Text(
-                      recieverUser.userName,
-                      style: TextStyle(
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.person,
+                          size: screenHeight / screenWidth * 20,
                           color: Colors.white54,
-                          fontSize: screenHeight / screenWidth * 20,
-                          fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          width: screenWidth * 0.04,
+                        ),
+                        Text(
+                          recieverUser.userName,
+                          style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: screenHeight / screenWidth * 20,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    Divider(
+                      color: Colors.white54,
+                      thickness: 3,
+                      // height: 50,
                     ),
                     SizedBox(
-                      height: screenHeight / 50,
+                      height: screenHeight / 30,
                     ),
-                    Text(
-                      recieverUser.userBio,
-                      style: TextStyle(
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.flash_on,
+                          size: screenHeight / screenWidth * 17,
                           color: Colors.white54,
-                          fontSize: screenHeight / screenWidth * 20,
-                          fontWeight: FontWeight.w400),
+                        ),
+                        SizedBox(
+                          width: screenWidth * 0.04,
+                        ),
+                        Text(
+                          recieverUser.userBio,
+                          style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: screenHeight / screenWidth * 17,
+                              fontWeight: FontWeight.w400),
+                        ),
+                      ],
+                    ),
+                    Divider(
+                      color: Colors.white54,
+                      thickness: 3,
+                      // height: 50,
                     ),
                     SizedBox(
                       height: screenHeight / 50,

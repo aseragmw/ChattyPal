@@ -51,6 +51,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       Container(
                         width: screenWidth * .60,
+                        // height: screenWidth * .60 * 0.16,
                         child: TextField(
                             onChanged: (value) {
                               if (value.isEmpty) {
@@ -74,11 +75,11 @@ class HomeScreen extends StatelessWidget {
                               enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(50),
                                   borderSide: BorderSide(
-                                      color: Colors.black, width: 1.3)),
+                                      color: Colors.grey, width: 1.3)),
                               focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(50),
                                   borderSide: BorderSide(
-                                      color: Colors.black, width: 1.3)),
+                                      color: Colors.grey, width: 1.3)),
                               hintText: 'Search',
                               labelStyle: TextStyle(
                                   fontSize: screenWidth / 23,
@@ -175,9 +176,7 @@ class HomeScreen extends StatelessWidget {
                                                           chatStreamSnapshot
                                                               .data![index]
                                                               .userName,
-                                                          snapshot.data!.docs[snapshot.data!.docs.length - 1]
-                                                                      [
-                                                                      'type'] ==
+                                                          snapshot.data!.docs[snapshot.data!.docs.length - 1]['type'] ==
                                                                   'text'
                                                               ? snapshot.data!
                                                                   .docs[snapshot
@@ -188,10 +187,12 @@ class HomeScreen extends StatelessWidget {
                                                               : snapshot.data!.docs[snapshot.data!.docs.length - 1]['type'] ==
                                                                       'image'
                                                                   ? 'PHOTO'
-                                                                  : snapshot
+                                                                  : snapshot.data!.docs[snapshot.data!.docs.length - 1]['type'] ==
+                                                                          'record'
+                                                                      ? 'AUDIO'
+                                                                      : snapshot
                                                                           .data!
-                                                                          .docs[snapshot.data!.docs.length - 1]
-                                                                      ['content'],
+                                                                          .docs[snapshot.data!.docs.length - 1]['content'],
                                                           messageTime,
                                                           chatStreamSnapshot.data![index],
                                                           context);
@@ -371,8 +372,16 @@ void showChatSettings(context, String fromId, String toId) {
             child: Wrap(
               children: <Widget>[
                 ListTile(
-                  leading: Icon(Icons.delete_forever),
-                  title: Text('Delte Chat'),
+                  // leading: Icon(Icons.delete_forever),
+                  title: Row(
+                    children: [
+                      Icon(Icons.delete_forever),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text('Delete Chat'),
+                    ],
+                  ),
                   onTap: () async {
                     await FirestoreDatabase.deleteChat(fromId, toId);
                     Navigator.of(context).pop();

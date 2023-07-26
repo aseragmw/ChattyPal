@@ -6,6 +6,7 @@ import 'package:chatty_pal/screens/reciever_profile_screen.dart';
 import 'package:chatty_pal/services/Firestore/firestore_database.dart';
 import 'package:chatty_pal/utils/app_constants.dart';
 import 'package:chatty_pal/utils/toast_manager.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -14,7 +15,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+import 'package:just_audio/just_audio.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chatty_pal/utils/components.dart';
 import 'package:path/path.dart' as p;
 
 class ChatScreen extends StatefulWidget {
@@ -29,6 +33,7 @@ class _ChatScreenState extends State<ChatScreen> {
   FirebaseStorage storage = FirebaseStorage.instance;
 
   File? _photo;
+  File? _video;
   final ImagePicker _picker = ImagePicker();
 
   Future imgFromGallery() async {
@@ -63,6 +68,62 @@ class _ChatScreenState extends State<ChatScreen> {
         print('No image selected.');
       }
     });
+  }
+
+  Future<void> videoFromGallery() async {
+    final pickedFile = await _picker.pickVideo(
+      source: ImageSource.gallery,
+    );
+
+    setState(() {
+      if (pickedFile != null) {
+        _video = File(pickedFile.path);
+        uploadVideo();
+      } else {
+        print('No videooooooooooooooooooooooooooooo selected.');
+      }
+    });
+  }
+
+  Future<void> videoFromCamera() async {
+    final XFile? pickedFile = await _picker.pickVideo(
+      source: ImageSource.camera,
+    );
+
+    setState(() {
+      log('video ahooooooooooo222222222222222');
+
+      if (pickedFile != null) {
+        log('video ahooooooooooo');
+
+        _video = File(pickedFile.path);
+        uploadVideo();
+      } else {
+        print(
+            'No videooooooooooooooooooooooooooooooooooooooooooooooooooooooo selected.');
+      }
+    });
+  }
+
+  Future uploadVideo() async {
+    if (_video == null) return;
+    final fileName = p.basename(_video!.path);
+    final destination = 'files/$fileName';
+
+    try {
+      log('video 0');
+      final ref = FirebaseStorage.instance.ref(destination).child('file/');
+      log('video 1');
+      final task = await ref.putFile(_video!);
+      log('video 2');
+      final url = await task.ref.getDownloadURL();
+      log('video 3');
+      await FirestoreDatabase.sendAMessage(AppConstants.userId!,
+          widget.reciverUser.userId, url, DateTime.now(), 'video');
+      log('video 4');
+    } catch (e) {
+      print('error occured');
+    }
   }
 
   Future uploadFile() async {
@@ -111,9 +172,71 @@ class _ChatScreenState extends State<ChatScreen> {
         });
   }
 
+  void _showMultiMediaPicker(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return SafeArea(
+            child: Container(
+              child: new Wrap(
+                children: <Widget>[
+                  new ListTile(
+                      leading: new Icon(Icons.photo_library),
+                      title: new Text('Photo'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _showPicker(context);
+                      }),
+                  new ListTile(
+                    leading: new Icon(Icons.photo_camera),
+                    title: new Text('Video'),
+                    onTap: () {
+                      Navigator.of(context).pop();
+
+                      _showVideoPicker(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  void _showVideoPicker(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return SafeArea(
+            child: Container(
+              child: new Wrap(
+                children: <Widget>[
+                  new ListTile(
+                      leading: new Icon(Icons.photo_library),
+                      title: new Text('Gallery'),
+                      onTap: () async {
+                        await videoFromGallery();
+                        Navigator.of(context).pop();
+                      }),
+                  new ListTile(
+                    leading: new Icon(Icons.photo_camera),
+                    title: new Text('Camera'),
+                    onTap: () async {
+                      await videoFromCamera();
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   ///////////////////////////////////////////////////////////////////////////////////
   final recorder = FlutterSoundRecorder();
   bool isRecording = false;
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////
   final _messageController = TextEditingController();
 
@@ -218,7 +341,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: screenHeight / screenWidth * 14),
+                                  fontSize: screenWidth * 0.07),
                             ),
                           ),
                           // Text(
@@ -307,6 +430,57 @@ class _ChatScreenState extends State<ChatScreen> {
                                               screenHeight,
                                               snapshot.data!.docs[index]
                                                   ['content']);
+                                        } else if (snapshot.data!.docs[index]
+                                                ['type'] ==
+                                            'record') {
+                                          // log('${snapshot.data!.docs[index]['content']}');
+                                          // return AudioWidget(
+                                          //   audioUrl: snapshot.data!.docs[index]
+                                          //       ['content'],
+                                          // );
+                                          return Column(
+                                            children: [
+                                              sentAudio(
+                                                  context,
+                                                  AppConstants.userId!,
+                                                  widget.reciverUser.userId,
+                                                  DateTime.parse(snapshot.data!
+                                                      .docs[index]['timeStamp']
+                                                      .toDate()
+                                                      .toString()),
+                                                  snapshot.data!.docs[index]
+                                                      ['content']),
+                                              SizedBox(
+                                                height: screenHeight / 60,
+                                              )
+                                            ],
+                                          );
+                                        } else if (snapshot.data!.docs[index]
+                                                ['type'] ==
+                                            'video') {
+                                          return Container(
+                                              // width: screenWidth * 0.8,
+                                              // height: screenWidth * 0.8,
+                                              child: InkWell(
+                                            onTap: () {
+                                              Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          VideoApp(
+                                                            videoUrl: snapshot
+                                                                    .data!
+                                                                    .docs[index]
+                                                                ['content'],
+                                                          )));
+                                            },
+                                            child: Container(
+                                              child: Text('Video'),
+                                              // child: AspectRatio(
+                                              //   aspectRatio: _controller.value.aspectRatio,
+                                              //   child: VideoPlayer(_controller),
+                                              // ),
+                                            ),
+                                          ));
                                         }
                                       } else {
                                         if (snapshot.data!.docs[index]
@@ -339,6 +513,26 @@ class _ChatScreenState extends State<ChatScreen> {
                                               screenHeight,
                                               snapshot.data!.docs[index]
                                                   ['content']);
+                                        } else if (snapshot.data!.docs[index]
+                                                ['type'] ==
+                                            'record') {
+                                          return Column(
+                                            children: [
+                                              recievedAudio(
+                                                  context,
+                                                  AppConstants.userId!,
+                                                  widget.reciverUser.userId,
+                                                  DateTime.parse(snapshot.data!
+                                                      .docs[index]['timeStamp']
+                                                      .toDate()
+                                                      .toString()),
+                                                  snapshot.data!.docs[index]
+                                                      ['content']),
+                                              SizedBox(
+                                                height: screenHeight / 60,
+                                              )
+                                            ],
+                                          );
                                         }
                                       }
                                     },
@@ -377,7 +571,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     children: [
                       Container(
                         // color: Colors.transparent,
-                        width: screenWidth * .70,
+                        width: screenWidth * .60,
                         child: TextField(
                             key: _formKey,
                             controller: _messageController,
@@ -405,11 +599,13 @@ class _ChatScreenState extends State<ChatScreen> {
                               enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(50),
                                   borderSide: BorderSide(
-                                      color: Colors.black, width: 1.3)),
+                                    color: Colors.grey,
+                                  )),
                               focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(50),
                                   borderSide: BorderSide(
-                                      color: Colors.black, width: 1.3)),
+                                    color: Colors.grey,
+                                  )),
                               hintText: 'Message',
                               labelStyle: TextStyle(
                                   fontSize: screenWidth / 23,
@@ -419,116 +615,116 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       IconButton(
                           onPressed: () async {
-                            _showPicker(context);
+                            _showMultiMediaPicker(context);
                           },
                           icon: Icon(
                             color: Color.fromRGBO(9, 77, 61, 1),
                             Icons.image,
                             size: screenHeight / screenWidth * 18,
                           )),
-//                     StatefulBuilder(
-//                       builder: (context, setState2) {
-//                         return IconButton(
-//                             onPressed: () async {
-//                               if (isRecording) {
-//                                 setState2(
-//                                   () {
-//                                     isRecording = false;
-//                                   },
-//                                 );
-//                                 isRecording = false;
-//                                 final path = await recorder.stopRecorder();
+                      StatefulBuilder(
+                        builder: (context, setState2) {
+                          return IconButton(
+                              onPressed: () async {
+                                if (isRecording) {
+                                  setState2(
+                                    () {
+                                      isRecording = false;
+                                    },
+                                  );
+                                  isRecording = false;
+                                  final path = await recorder.stopRecorder();
 
-//                                 final audioFile = File(path!);
-//                                 if (audioFile == null) return;
-//                                 final fileName = p.basename(audioFile.path);
+                                  final audioFile = File(path!);
+                                  if (audioFile == null) return;
+                                  final fileName = p.basename(audioFile.path);
+                                  final user = await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .where('id',
+                                          isEqualTo: AppConstants.userId!)
+                                      .get();
+                                  int recordsCount = user.docs.first
+                                      .data()['recordsCount'] as int;
+                                  recordsCount++;
+                                  String destination =
+                                      'files/${AppConstants.userId}/${recordsCount.toString()}/$fileName';
+                                  log('hhh1');
 
-//                                 String destination = 'files/$fileName';
+                                  log('hhh2');
 
-//                                 try {
-//                                   try {
-//                                     log('hhh1');
-//                                     final hhh = await FirebaseStorage.instance
-//                                         .ref(destination)
-//                                         .child('file/')
-//                                         .getDownloadURL();
-//                                     log(hhh.toString());
-//                                     log('hhh2');
-//                                     destination = hhh.substring(
-//                                             hhh.indexOf('token=') + 5) +
-//                                         'xx';
-//                                     log(' des issssssssss ${destination}');
-//                                     final ref = FirebaseStorage.instance
-//                                         .ref(destination)
-//                                         .child('file/');
+                                  log(' des issssssssss ${destination}');
+                                  final ref = FirebaseStorage.instance
+                                      .ref(destination)
+                                      .child('file/');
 
-//                                     final task = await ref.putFile(audioFile);
-//                                     final url = await task.ref.getDownloadURL();
-//                                   } catch (e) {
-//                                     destination += AppConstants.userId!;
-//                                     final ref = FirebaseStorage.instance
-//                                         .ref(destination)
-//                                         .child('file/');
+                                  final task = await ref.putFile(audioFile);
+                                  final url = await task.ref.getDownloadURL();
+                                  await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .where('id',
+                                          isEqualTo: AppConstants.userId!)
+                                      .get()
+                                      .then((value) {
+                                    value.docs.first.reference
+                                        .update({'recordsCount': recordsCount});
+                                  });
+                                  log('download link is ${url}');
+                                  try {
+                                    await FirestoreDatabase.sendAMessage(
+                                        AppConstants.userId!,
+                                        widget.reciverUser.userId,
+                                        url,
+                                        DateTime.now(),
+                                        'record');
+                                  } catch (e) {
+                                    print('error occured');
+                                  }
 
-//                                     final task = await ref.putFile(audioFile);
-//                                     final url = await task.ref.getDownloadURL();
-//                                   }
-
-//                                   // await FirestoreDatabase.sendAMessage(
-//                                   //     AppConstants.userId!,
-//                                   //     widget.reciverUser.userId,
-//                                   //     url,
-//                                   //     DateTime.now(),
-//                                   //     'image');
-//                                 } catch (e) {
-//                                   print('error occured');
-//                                 }
-
-//                                 log('audio path is ${audioFile.path}');
-//                               } else {
-//                                 setState2(() {
-//                                   isRecording = true;
-//                                 });
-//                                 isRecording = true;
-// //                                 var tempDir = await getTemporaryDirectory();
-// //  String path = '${tempDir.path}/audio.acc';
-//                                 Directory directory =
-//                                     Directory(p.dirname('audio'));
-//                                 if (!directory.existsSync()) {
-//                                   directory.createSync();
-//                                 }
-//                                 await recorder.startRecorder(toFile: 'audio');
-//                               }
-//                             },
-//                             icon: Column(
-//                               children: [
-//                                 isRecording
-//                                     ? StreamBuilder<RecordingDisposition>(
-//                                         stream: recorder.onProgress,
-//                                         builder: (context, snapshot) {
-//                                           final duration = snapshot.hasData
-//                                               ? snapshot.data!.duration
-//                                               : Duration.zero;
-//                                           final durationText =
-//                                               duration.inMinutes.toString() +
-//                                                   ':' +
-//                                                   duration.inSeconds.toString();
-//                                           return Text(
-//                                             durationText,
-//                                             style: TextStyle(fontSize: 10),
-//                                           );
-//                                         })
-//                                     : SizedBox(),
-//                                 Icon(
-//                                   color: Color.fromRGBO(9, 77, 61, 1),
-//                                   isRecording ? Icons.stop_circle : Icons.mic,
-//                                   size: screenHeight / screenWidth * 10,
-//                                 ),
-//                               ],
-//                             ));
-//                       },
-//                     ),
-//                   ],
+                                  log('audio path is ${audioFile.path}');
+                                } else {
+                                  setState2(() {
+                                    isRecording = true;
+                                  });
+                                  isRecording = true;
+//                                 var tempDir = await getTemporaryDirectory();
+//  String path = '${tempDir.path}/audio.acc';
+                                  Directory directory =
+                                      Directory(p.dirname('audio'));
+                                  if (!directory.existsSync()) {
+                                    directory.createSync();
+                                  }
+                                  await recorder.startRecorder(toFile: 'audio');
+                                }
+                              },
+                              icon: Column(
+                                children: [
+                                  isRecording
+                                      ? StreamBuilder<RecordingDisposition>(
+                                          stream: recorder.onProgress,
+                                          builder: (context, snapshot) {
+                                            final duration = snapshot.hasData
+                                                ? snapshot.data!.duration
+                                                : Duration.zero;
+                                            final durationText = duration
+                                                    .inMinutes
+                                                    .toString() +
+                                                ':' +
+                                                duration.inSeconds.toString();
+                                            return Text(
+                                              durationText,
+                                              style: TextStyle(fontSize: 10),
+                                            );
+                                          })
+                                      : SizedBox(),
+                                  Icon(
+                                    color: Color.fromRGBO(9, 77, 61, 1),
+                                    isRecording ? Icons.stop_circle : Icons.mic,
+                                    size: screenHeight / screenWidth * 10,
+                                  ),
+                                ],
+                              ));
+                        },
+                      ),
                     ]),
               ),
               SizedBox(
@@ -540,273 +736,61 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-Widget recievedMessage(
-    BuildContext context,
-    String fromId,
-    String toId,
-    DateTime timeStamp,
-    double screenWidth,
-    double screenHeight,
-    String message) {
-  return InkWell(
-    onLongPress: () {
-      showMessageSettings(context, fromId, toId, timeStamp);
-    },
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Flexible(
-              child: Container(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    message,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: screenHeight / screenWidth * 9,
-                        fontWeight: FontWeight.w500),
+class VideoApp extends StatefulWidget {
+  VideoApp({super.key, this.videoUrl});
+  final videoUrl;
+
+  @override
+  _VideoAppState createState() => _VideoAppState();
+}
+
+class _VideoAppState extends State<VideoApp> {
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl))
+      ..initialize().then((_) {
+        // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+        setState(() {});
+      });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    return Scaffold(
+      backgroundColor: Color.fromRGBO(135, 182, 151, 1),
+      body: Center(
+        child: _controller.value.isInitialized
+            ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        _controller.value.isPlaying
+                            ? _controller.pause()
+                            : _controller.play();
+                      });
+                    },
+                    child: AspectRatio(
+                      aspectRatio: _controller.value.aspectRatio,
+                      child: VideoPlayer(_controller),
+                    ),
                   ),
                 ),
-                decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 2.0, // soften the shadow
-                          spreadRadius: 1.0,
-                          offset: Offset(5, 5))
-                    ],
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(50),
-                        bottomRight: Radius.circular(50),
-                        bottomLeft: Radius.circular(50))),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(
-          height: screenHeight / 60,
-        ),
-      ],
-    ),
-  );
-}
+              )
+            : Container(),
+      ),
+    );
+  }
 
-Widget sentMessage(
-    BuildContext context,
-    String fromId,
-    String toId,
-    DateTime timeStamp,
-    double screenWidth,
-    double screenHeight,
-    String message) {
-  return InkWell(
-    onLongPress: () {
-      showMessageSettings(context, fromId, toId, timeStamp);
-    },
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Flexible(
-              child: Container(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    message,
-                    style: TextStyle(
-                        fontSize: screenHeight / screenWidth * 9,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white),
-                  ),
-                ),
-                decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.white24,
-                          blurRadius: 2.0, // soften the shadow
-                          spreadRadius: 1.0,
-                          offset: Offset(-5, 5))
-                    ],
-                    color: Color.fromRGBO(9, 77, 61, 0.71),
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(50),
-                        bottomRight: Radius.circular(50),
-                        bottomLeft: Radius.circular(50))),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(
-          height: screenHeight / 60,
-        ),
-      ],
-    ),
-  );
-}
-
-Widget recievedImage(
-    BuildContext context,
-    String fromId,
-    String toId,
-    DateTime timeStamp,
-    double screenWidth,
-    double screenHeight,
-    String imgUrl) {
-  return InkWell(
-    onLongPress: () {
-      showMessageSettings(context, fromId, toId, timeStamp);
-    },
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Flexible(
-              child: Container(
-                width: screenHeight / screenWidth * 150,
-                height: screenHeight / screenWidth * 150,
-                child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: CachedNetworkImage(
-                      imageUrl: imgUrl,
-                      imageBuilder: (context, imageProvider) => PhotoView(
-                        imageProvider: imageProvider,
-                      ),
-                      placeholder: (context, url) =>
-                          CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                    )),
-                decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 2.0, // soften the shadow
-                          spreadRadius: 1.0,
-                          offset: Offset(5, 5))
-                    ],
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(50),
-                        bottomRight: Radius.circular(50),
-                        bottomLeft: Radius.circular(50))),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(
-          height: screenHeight / 60,
-        ),
-      ],
-    ),
-  );
-}
-
-Widget sentImage(
-    BuildContext context,
-    String fromId,
-    String toId,
-    DateTime timeStamp,
-    double screenWidth,
-    double screenHeight,
-    String imageUrl) {
-  return InkWell(
-    onLongPress: () {
-      showMessageSettings(context, fromId, toId, timeStamp);
-    },
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Flexible(
-              child: Container(
-                width: screenHeight / screenWidth * 150,
-                height: screenHeight / screenWidth * 150,
-                child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      imageBuilder: (context, imageProvider) => PhotoView(
-                        imageProvider: imageProvider,
-                      ),
-                      placeholder: (context, url) =>
-                          CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                    )),
-                decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.white24,
-                          blurRadius: 2.0, // soften the shadow
-                          spreadRadius: 1.0,
-                          offset: Offset(-5, 5))
-                    ],
-                    color: Color.fromRGBO(9, 77, 61, 0.71),
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(50),
-                        bottomRight: Radius.circular(50),
-                        bottomLeft: Radius.circular(50))),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(
-          height: screenHeight / 60,
-        ),
-      ],
-    ),
-  );
-}
-
-void showChatSettings(context, String fromId, String toId) {
-  showModalBottomSheet(
-      context: context,
-      builder: (BuildContext bc) {
-        return SafeArea(
-          child: Container(
-            child: Wrap(
-              children: <Widget>[
-                ListTile(
-                  leading: Icon(Icons.delete_forever),
-                  title: Text('Delte Chat'),
-                  onTap: () async {
-                    await FirestoreDatabase.deleteChat(fromId, toId);
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      });
-}
-
-void showMessageSettings(
-    context, String fromId, String toId, DateTime timeStamp) {
-  showModalBottomSheet(
-      context: context,
-      builder: (BuildContext bc) {
-        return SafeArea(
-          child: Container(
-            child: Wrap(
-              children: <Widget>[
-                ListTile(
-                  leading: Icon(Icons.delete_forever),
-                  title: Text('Delte Message'),
-                  onTap: () async {
-                    await FirestoreDatabase.deleteAMessage(
-                        fromId, toId, timeStamp);
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      });
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
 }

@@ -22,6 +22,7 @@ class FirestoreDatabase {
         userDocUserId: user.userId,
         userDocUserEmail: user.userEmail,
         userDocUserImgUrl: user.userProfileImage,
+        'recordsCount': 0
       });
     } catch (e) {}
   }
