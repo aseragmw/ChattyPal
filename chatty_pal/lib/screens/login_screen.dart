@@ -86,8 +86,8 @@ class LoginScreen extends StatelessWidget {
                       if (state is LoginSuccessState) {
                         ToastManager.show(context, 'Login Done Successfuly',
                             Color.fromRGBO(19, 141, 113, 1));
-                        await FirestoreDatabase.updateUser(
-                            AppConstants.userId!, {'bio': ''});
+                        // await FirestoreDatabase.updateUser(
+                        //     AppConstants.userId!, {'bio': ''});
                         // await FirestoreDatabase.getAllChats();
                         context.read<ChatsBloc>().add(GetAllChatsEvent());
                         Navigator.of(context)
