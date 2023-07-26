@@ -11,6 +11,7 @@ import 'package:chatty_pal/screens/reciever_profile_screen.dart';
 import 'package:chatty_pal/screens/register_screen.dart';
 import 'package:chatty_pal/screens/settings_screen.dart';
 import 'package:chatty_pal/screens/splash_screen.dart';
+import 'package:chatty_pal/screens/video_widget.dart';
 import 'package:chatty_pal/services/Firestore/firestore_database.dart';
 import 'package:chatty_pal/utils/app_constants.dart';
 import 'package:chatty_pal/utils/cache_manager.dart';
@@ -68,7 +69,7 @@ class ChattyPal extends StatelessWidget {
           // "searchScreen": (context) => SearchScreen(),
           "settingsScreen": (context) => SettingsScreen(),
           "accountScreen": (context) => AccountScreen(),
-          "extraDetailsScreen":(context) => ExtraDetailsScreen()
+          "extraDetailsScreen": (context) => ExtraDetailsScreen()
         },
         home: SplashScreen(),
       ),

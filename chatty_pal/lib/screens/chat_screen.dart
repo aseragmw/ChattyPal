@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chatty_pal/blocs/chats_bloc/chats_bloc.dart';
 import 'package:chatty_pal/models/user.dart';
 import 'package:chatty_pal/screens/reciever_profile_screen.dart';
+import 'package:chatty_pal/screens/video_widget.dart';
 import 'package:chatty_pal/services/Firestore/firestore_database.dart';
 import 'package:chatty_pal/utils/app_constants.dart';
 import 'package:chatty_pal/utils/toast_manager.dart';
@@ -458,29 +459,18 @@ class _ChatScreenState extends State<ChatScreen> {
                                         } else if (snapshot.data!.docs[index]
                                                 ['type'] ==
                                             'video') {
-                                          return Container(
-                                              // width: screenWidth * 0.8,
-                                              // height: screenWidth * 0.8,
-                                              child: InkWell(
-                                            onTap: () {
-                                              Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          VideoApp(
-                                                            videoUrl: snapshot
-                                                                    .data!
-                                                                    .docs[index]
-                                                                ['content'],
-                                                          )));
-                                            },
-                                            child: Container(
-                                              child: Text('Video'),
-                                              // child: AspectRatio(
-                                              //   aspectRatio: _controller.value.aspectRatio,
-                                              //   child: VideoPlayer(_controller),
-                                              // ),
-                                            ),
-                                          ));
+                                          return sentVideo(
+                                              context,
+                                              AppConstants.userId!,
+                                              widget.reciverUser.userId,
+                                              DateTime.parse(snapshot.data!
+                                                  .docs[index]['timeStamp']
+                                                  .toDate()
+                                                  .toString()),
+                                              screenWidth,
+                                              screenHeight,
+                                              snapshot.data!.docs[index]
+                                                  ['content']);
                                         }
                                       } else {
                                         if (snapshot.data!.docs[index]
@@ -533,6 +523,21 @@ class _ChatScreenState extends State<ChatScreen> {
                                               )
                                             ],
                                           );
+                                        } else if (snapshot.data!.docs[index]
+                                                ['type'] ==
+                                            'video') {
+                                          return recievedVideo(
+                                              context,
+                                              AppConstants.userId!,
+                                              widget.reciverUser.userId,
+                                              DateTime.parse(snapshot.data!
+                                                  .docs[index]['timeStamp']
+                                                  .toDate()
+                                                  .toString()),
+                                              screenWidth,
+                                              screenHeight,
+                                              snapshot.data!.docs[index]
+                                                  ['content']);
                                         }
                                       }
                                     },
@@ -696,33 +701,34 @@ class _ChatScreenState extends State<ChatScreen> {
                                   await recorder.startRecorder(toFile: 'audio');
                                 }
                               },
-                              icon: Column(
-                                children: [
-                                  isRecording
-                                      ? StreamBuilder<RecordingDisposition>(
-                                          stream: recorder.onProgress,
-                                          builder: (context, snapshot) {
-                                            final duration = snapshot.hasData
-                                                ? snapshot.data!.duration
-                                                : Duration.zero;
-                                            final durationText = duration
-                                                    .inMinutes
-                                                    .toString() +
-                                                ':' +
-                                                duration.inSeconds.toString();
-                                            return Text(
-                                              durationText,
-                                              style: TextStyle(fontSize: 10),
-                                            );
-                                          })
-                                      : SizedBox(),
-                                  Icon(
-                                    color: Color.fromRGBO(9, 77, 61, 1),
-                                    isRecording ? Icons.stop_circle : Icons.mic,
-                                    size: screenHeight / screenWidth * 10,
-                                  ),
-                                ],
-                              ));
+                              icon: !isRecording
+                                  ? Icon(Icons.mic,
+                                      color: Color.fromRGBO(9, 77, 61, 1),
+                                      size: screenHeight / screenWidth * 15)
+                                  : Column(
+                                      children: [
+                                        StreamBuilder<RecordingDisposition>(
+                                            stream: recorder.onProgress,
+                                            builder: (context, snapshot) {
+                                              final duration = snapshot.hasData
+                                                  ? snapshot.data!.duration
+                                                  : Duration.zero;
+                                              final durationText = duration
+                                                      .inMinutes
+                                                      .toString() +
+                                                  ':' +
+                                                  duration.inSeconds.toString();
+                                              return Text(
+                                                durationText,
+                                                style: TextStyle(fontSize: 10),
+                                              );
+                                            }),
+                                        Icon(Icons.stop,
+                                            color: Color.fromRGBO(9, 77, 61, 1),
+                                            size:
+                                                screenHeight / screenWidth * 9),
+                                      ],
+                                    ));
                         },
                       ),
                     ]),

@@ -1,5 +1,6 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chatty_pal/screens/video_widget.dart';
 import 'package:chatty_pal/services/Firestore/firestore_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -316,6 +317,111 @@ Widget sentImage(
     ),
   );
 }
+
+
+
+Widget sentVideo(
+    BuildContext context,
+    String fromId,
+    String toId,
+    DateTime timeStamp,
+    double screenWidth,
+    double screenHeight,
+    String videoUrl) {
+  return InkWell(
+    onLongPress: () {
+      showMessageSettings(context, fromId, toId, timeStamp);
+    },
+    child: Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Flexible(
+              child: Container(
+                width: screenHeight / screenWidth * 150,
+                height: screenHeight / screenWidth * 150,
+                child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: MyVideoWidget(videoUrl: videoUrl)
+                    ),
+                decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.white24,
+                          blurRadius: 2.0, // soften the shadow
+                          spreadRadius: 1.0,
+                          offset: Offset(-5, 5))
+                    ],
+                    color: Color.fromRGBO(9, 77, 61, 0.71),
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(50),
+                        bottomRight: Radius.circular(50),
+                        bottomLeft: Radius.circular(50))),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: screenHeight / 60,
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+Widget recievedVideo(
+    BuildContext context,
+    String fromId,
+    String toId,
+    DateTime timeStamp,
+    double screenWidth,
+    double screenHeight,
+    String videoUrl) {
+  return InkWell(
+    onLongPress: () {
+      showMessageSettings(context, fromId, toId, timeStamp);
+    },
+    child: Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Flexible(
+              child: Container(
+                width: screenHeight / screenWidth * 150,
+                height: screenHeight / screenWidth * 150,
+                child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: MyVideoWidget(videoUrl: videoUrl)
+                    ),
+                decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 2.0, // soften the shadow
+                          spreadRadius: 1.0,
+                          offset: Offset(5, 5))
+                    ],
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(50),
+                        bottomRight: Radius.circular(50),
+                        bottomLeft: Radius.circular(50))),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: screenHeight / 60,
+        ),
+      ],
+    ),
+  );
+}
+
 
 Widget sentAudio(BuildContext context, String fromId, String toId,
     DateTime timeStamp, String audioUrl) {

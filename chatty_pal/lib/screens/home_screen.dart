@@ -176,7 +176,8 @@ class HomeScreen extends StatelessWidget {
                                                           chatStreamSnapshot
                                                               .data![index]
                                                               .userName,
-                                                          snapshot.data!.docs[snapshot.data!.docs.length - 1]['type'] ==
+                                                          snapshot.data!.docs[snapshot.data!.docs.length - 1][
+                                                                      'type'] ==
                                                                   'text'
                                                               ? snapshot.data!
                                                                   .docs[snapshot
@@ -187,12 +188,13 @@ class HomeScreen extends StatelessWidget {
                                                               : snapshot.data!.docs[snapshot.data!.docs.length - 1]['type'] ==
                                                                       'image'
                                                                   ? 'PHOTO'
-                                                                  : snapshot.data!.docs[snapshot.data!.docs.length - 1]['type'] ==
+                                                                  : snapshot.data!.docs[snapshot.data!.docs.length - 1]
+                                                                              ['type'] ==
                                                                           'record'
                                                                       ? 'AUDIO'
-                                                                      : snapshot
-                                                                          .data!
-                                                                          .docs[snapshot.data!.docs.length - 1]['content'],
+                                                                      : snapshot.data!.docs[snapshot.data!.docs.length - 1]['type'] == 'video'
+                                                                          ? 'VIDEO'
+                                                                          : snapshot.data!.docs[snapshot.data!.docs.length - 1]['content'],
                                                           messageTime,
                                                           chatStreamSnapshot.data![index],
                                                           context);
