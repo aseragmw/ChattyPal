@@ -3,6 +3,7 @@ ChattyPal, Flutter Chat app cloning Whatsapp Experience.
 
 •Built with :
 •Responsive design for different screen sizes
+
 •MVVM architecture
 •Bloc for state management.
 •Firebase as a back-end service (Email/Password authentication, Firestore, Cloud Storage)
