@@ -16,6 +16,7 @@ ChattyPal, Flutter Chat app cloning Whatsapp Experience.
 •Data persistence manipulation
 
 
+
 •Features:
 
 •Registration and Login
