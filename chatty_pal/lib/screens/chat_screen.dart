@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:chatty_pal/blocs/chats_bloc/chats_bloc.dart';
 import 'package:chatty_pal/models/user.dart';
 import 'package:chatty_pal/screens/reciever_profile_screen.dart';
-import 'package:chatty_pal/screens/video_widget.dart';
 import 'package:chatty_pal/services/Firestore/firestore_database.dart';
 import 'package:chatty_pal/utils/app_constants.dart';
 import 'package:chatty_pal/utils/toast_manager.dart';
@@ -13,11 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chatty_pal/utils/components.dart';
 import 'package:path/path.dart' as p;
@@ -571,12 +567,12 @@ class _ChatScreenState extends State<ChatScreen> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenWidth / 50),
                 child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Container(
                         // color: Colors.transparent,
-                        width: screenWidth * .60,
+                        width: screenWidth * .7,
                         child: TextField(
                             key: _formKey,
                             controller: _messageController,
@@ -704,7 +700,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               icon: !isRecording
                                   ? Icon(Icons.mic,
                                       color: Color.fromRGBO(9, 77, 61, 1),
-                                      size: screenHeight / screenWidth * 15)
+                                      size: screenHeight / screenWidth * 17)
                                   : Column(
                                       children: [
                                         StreamBuilder<RecordingDisposition>(

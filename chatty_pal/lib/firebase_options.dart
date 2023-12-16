@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,10 +25,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -49,21 +43,40 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCpyoG6Q2Bp1cu0Mwb9HweM5ACpKeepr_U',
+    appId: '1:285199844278:web:b65ad02280038b10923717',
+    messagingSenderId: '285199844278',
+    projectId: 'chatty-pal-2',
+    authDomain: 'chatty-pal-2.firebaseapp.com',
+    storageBucket: 'chatty-pal-2.appspot.com',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCH0DRPj-TZoUfDLu4xmOXevyy_2JxNOJg',
-    appId: '1:712652610661:android:f62a32a5048009d9a97a8c',
-    messagingSenderId: '712652610661',
-    projectId: 'chatty-pal',
-    storageBucket: 'chatty-pal.appspot.com',
+    apiKey: 'AIzaSyD6MauXs8kXoiUvnVwhA_j83ja0tHqT4gw',
+    appId: '1:285199844278:android:56c6da9a7fa7fb58923717',
+    messagingSenderId: '285199844278',
+    projectId: 'chatty-pal-2',
+    storageBucket: 'chatty-pal-2.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDE9g7pnm2XJjDwFuNTIrvEvUglazZ0t90',
-    appId: '1:712652610661:ios:3e180f133f245418a97a8c',
-    messagingSenderId: '712652610661',
-    projectId: 'chatty-pal',
-    storageBucket: 'chatty-pal.appspot.com',
-    iosClientId: '712652610661-k7u4u4ejskhnip8h52vhcrlpp8lv28s4.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAubmMRJvSYhtOayuIt-DVG-YJJC5jODjU',
+    appId: '1:285199844278:ios:7acd9620c3117436923717',
+    messagingSenderId: '285199844278',
+    projectId: 'chatty-pal-2',
+    storageBucket: 'chatty-pal-2.appspot.com',
+    iosClientId: '285199844278-98uggm6m6ha3rapu5i63c3q2faupie9p.apps.googleusercontent.com',
+    iosBundleId: 'com.example.chattyPal',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAubmMRJvSYhtOayuIt-DVG-YJJC5jODjU',
+    appId: '1:285199844278:ios:7acd9620c3117436923717',
+    messagingSenderId: '285199844278',
+    projectId: 'chatty-pal-2',
+    storageBucket: 'chatty-pal-2.appspot.com',
+    iosClientId: '285199844278-98uggm6m6ha3rapu5i63c3q2faupie9p.apps.googleusercontent.com',
     iosBundleId: 'com.example.chattyPal',
   );
 }

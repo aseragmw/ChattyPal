@@ -1,7 +1,5 @@
 import 'package:chatty_pal/blocs/basic_auth_provider_bloc/basic_auth_provider_bloc.dart';
 import 'package:chatty_pal/blocs/chats_bloc/chats_bloc.dart';
-import 'package:chatty_pal/services/Firestore/firestore_database.dart';
-import 'package:chatty_pal/utils/app_constants.dart';
 import 'package:chatty_pal/utils/toast_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:chatty_pal/utils/components.dart';
